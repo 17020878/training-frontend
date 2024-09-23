@@ -1,0 +1,109 @@
+#root{
+    height: 100%;
+}
+html {
+    margin: 0;
+    height: 100%;
+}
+.orange100{
+    color: #F37021;
+}
+.medium{
+    font-weight: 500;
+}
+.cursor-pointer{
+    cursor: pointer;
+}
+.orange100Bg{
+    background-color: #F37021;
+}
+.nav-parent-size{
+    font-size: .86rem!important;
+}
+.disable-text{
+    color: #ccc!important;
+}
+.colorOrange{
+    color: #f16f21;
+}
+.blueDark{
+    color: #1e1e44;
+}
+.blueDarkBg{
+    background-color: #1e1e44;
+}
+.black100{
+    color: #000000;
+}
+.black85{
+    color: rgba(0,0,0,.85);;
+}
+.black65{
+    color: rgba(0,0,0,.65);;
+}
+.white100{
+    color: #ffffff;
+}
+.colorGrey{
+    color: #4C4C4C;
+}
+.colorRed{
+    color: red;
+}
+.colorGreen{
+    color: #43a409;
+}
+.bgBlue25{
+    background-color: rgb(215 217 255 / 25%);
+}
+.text12{
+    font-size: 12px;
+}
+.text14{
+    font-size: 14px;
+}
+.text16{
+    font-size: 16px;
+}
+.text18{
+    font-size: 18px;
+}
+.mb5{
+    margin-bottom: 5px;
+}
+.mb10{
+    margin-bottom: 10px;
+}
+.mb15{
+    margin-bottom: 15px;
+}
+.mt5{
+    margin-top: 5px;
+}
+.mt10{
+    margin-top: 10px;
+}
+.mt15{
+    margin-top: 15px;
+}
+.mr10{
+    margin-right: 10px;
+}
+.mr5{
+    margin-right: 5px;
+}
+.mr15{
+    margin-right: 15px;
+}
+.ml5{
+    margin-left: 5px;
+}
+.ml10{
+    margin-left: 10px;
+}
+.ml15{
+    margin-left: 15px;
+}
+.hidden{
+    display: none!important;
+}
