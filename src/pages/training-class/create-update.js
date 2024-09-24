@@ -8,7 +8,7 @@ import {
     Divider,
     FormControl,
     FormHelperText,
-    Grid,
+    Grid, InputAdornment,
     MenuItem,
     Select,
     Table,
@@ -38,6 +38,7 @@ import apiLecturer from "../../api/lecturer";
 import apiStudent from "../../api/student";
 import apiTraining from "../../api/training";
 import ModalListStudent from "./ModalListStudent";
+import {NumericFormat} from "react-number-format";
 
 export default function CreateUpdateTrainingClass(props) {
     const dispatch = useDispatch();
@@ -58,6 +59,9 @@ export default function CreateUpdateTrainingClass(props) {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [loading, setLoading] = useState(false)
     const [openModalEdit, setOpenModalEdit] = useState(false)
+    const [lecturerExpense, setlecturerExpense] = useState('')
+    const [logisticsExpense, setLogisticsExpense] = useState('')
+    const [lunchExpense, setLunchExpense] = useState('')
     const [listResult, setListResult] = React.useState({
         page: 0,
         pageSize: 1000,
@@ -73,6 +77,9 @@ export default function CreateUpdateTrainingClass(props) {
         lecturers: '',
         organizationLocation: '',
         students: '',
+        lecturerExpense: '',
+        logisticsExpense: '',
+        lunchExpense: '',
         notes: '',
     })
 
@@ -97,6 +104,9 @@ export default function CreateUpdateTrainingClass(props) {
                 setListBlockOrganization(r.data.blockOrganizations)
                 setListUnitOrganization(r.data.unitOrganizations)
                 setListLecturers(r.data.lecturers)
+                setlecturerExpense(r.data.lecturerExpense)
+                setLogisticsExpense(r.data.logisticsExpense)
+                setLunchExpense(r.data.lunchExpense)
                 let arr = convertArr(r.data.students, listResult)
                 setListResult({...listResult, rows: arr, total: r.data.students.length});
             }).catch(e => {
@@ -205,6 +215,9 @@ export default function CreateUpdateTrainingClass(props) {
                         lecturers: idUpdate ? info.lecturers : '',
                         organizationLocationId: idUpdate ? info.organizationLocation.id : '',
                         students: idUpdate ? info.students : '',
+                        lecturerExpense: idUpdate ? info.lecturerExpense : '',
+                        logisticsExpense: idUpdate ? info.logisticsExpense : '',
+                        lunchExpense: idUpdate ? info.lunchExpense : '',
                         notes: idUpdate ? info.notes : '',
                     }}
                     onSubmit={
@@ -531,7 +544,95 @@ export default function CreateUpdateTrainingClass(props) {
                                             <Divider/>
                                         </Grid>
                                     </Grid>
-                                    <div className={'flexGroup2'}>
+                                    {
+                                        lecturerExpense && logisticsExpense && lunchExpense
+                                            ? <div className={'label-group-input'}>
+                                                <div>Chi phí</div>
+                                            </div>
+                                            : ''
+                                    }
+                                    {
+                                        lecturerExpense && logisticsExpense && lunchExpense
+                                            ? <Grid container spacing={2.5}>
+                                                {
+                                                    lecturerExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Chi phí giảng viên</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='lecturerExpense'
+                                                                name='lecturerExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.lecturerExpense}
+                                                                customInput={TextField}
+                                                                error={touched.lecturerExpense && Boolean(errors.lecturerExpense)}
+                                                                helperText={touched.lecturerExpense && errors.lecturerExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
+                                                {
+                                                    logisticsExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Chi phí hậu cần</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='logisticsExpense'
+                                                                name='logisticsExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.logisticsExpense}
+                                                                customInput={TextField}
+                                                                error={touched.logisticsExpense && Boolean(errors.logisticsExpense)}
+                                                                helperText={touched.logisticsExpense && errors.logisticsExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
+                                                {
+                                                    lunchExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Chi phí ăn trưa</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='lunchExpense'
+                                                                name='lunchExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.lunchExpense}
+                                                                customInput={TextField}
+                                                                error={touched.lunchExpense && Boolean(errors.lunchExpense)}
+                                                                helperText={touched.lunchExpense && errors.lunchExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
+                                                <Grid item xs={6} md={12}>
+                                                    <Divider/>
+                                                </Grid>
+                                            </Grid>
+                                            : ''
+                                    }
+                                    <div className={'flexGroup2 mt10'}>
                                         <div className={'label-group-input'}>
                                             <div>Danh sách học viên</div>
                                         </div>

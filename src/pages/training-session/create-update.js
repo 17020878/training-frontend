@@ -8,7 +8,7 @@ import {
     Divider,
     FormControl,
     FormHelperText,
-    Grid,
+    Grid, InputAdornment,
     MenuItem,
     Select,
     Table,
@@ -46,6 +46,7 @@ import apiLecturer from "../../api/lecturer";
 import apiTrainingClass from "../../api/training-class";
 import apiAttendance from "../../api/attendance";
 import ModalConfirm from "../../components/ModalConfirm";
+import {NumericFormat} from "react-number-format";
 
 export default function CreateUpdateTrainingSession(props) {
     const dispatch = useDispatch();
@@ -74,6 +75,9 @@ export default function CreateUpdateTrainingSession(props) {
         formTraining: '',
         lecturers: '',
         imageLink: '',
+        lecturerExpense: '',
+        logisticsExpense: '',
+        lunchExpense: '',
         notes: '',
     })
     const [listResult, setListResult] = React.useState({
@@ -226,6 +230,10 @@ export default function CreateUpdateTrainingSession(props) {
         formData.append("lecturerIds", listLecturers.map(item => item.id))
         formData.append("imageLink", values.imageLink)
         formData.append("notes", values.notes)
+        formData.append("lecturerExpense", values.lecturerExpense)
+        formData.append("logisticsExpense", values.logisticsExpense)
+        formData.append("lunchExpense", values.lunchExpense)
+
         // formData.forEach((value, key) => {
         //     console.log(key, value);
         //     //console.log(typeof key, typeof value);
@@ -319,6 +327,9 @@ export default function CreateUpdateTrainingSession(props) {
                         formTrainingId: idUpdate ? info.formTraining.id : '',
                         lecturerIds: idUpdate ? info.lecturerIds : '',
                         imageLink: idUpdate ? info.imageLink : '',
+                        lecturerExpense: idUpdate ? info.lecturerExpense : '',
+                        logisticsExpense: idUpdate ? info.logisticsExpense : '',
+                        lunchExpense: idUpdate ? info.lunchExpense : '',
                         notes: idUpdate ? info.notes : '',
                     }}
                     onSubmit={
@@ -507,6 +518,89 @@ export default function CreateUpdateTrainingSession(props) {
                                         </Grid>
                                     </Grid>
                                     <div className={'label-group-input'}>
+                                        <div>Chi phí</div>
+                                    </div>
+                                    <Grid container spacing={2.5}>
+                                        <Grid item xs={6} md={3}>
+                                            <div className={'label-input'}>Chi phí giảng viên</div>
+                                            <NumericFormat
+                                                id='lecturerExpense'
+                                                name='lecturerExpense'
+                                                className={'formik-input text-right'}
+                                                size={"small"}
+                                                value={values.lecturerExpense}
+                                                customInput={TextField}
+                                                error={touched.lecturerExpense && Boolean(errors.lecturerExpense)}
+                                                helperText={touched.lecturerExpense && errors.lecturerExpense}
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                }}
+                                                thousandSeparator={"."}
+                                                decimalSeparator={","}
+                                                onValueChange={(values) => {
+                                                    const {formattedValue, value, floatValue} = values;
+                                                    const re = /^[0-9\b]+$/;
+                                                    if (re.test(floatValue)) {
+                                                        setFieldValue('lecturerExpense', floatValue)
+                                                    }
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} md={3}>
+                                            <div className={'label-input'}>Chi phí hậu cần</div>
+                                            <NumericFormat
+                                                id='logisticsExpense'
+                                                name='logisticsExpense'
+                                                className={'formik-input text-right'}
+                                                size={"small"}
+                                                value={values.logisticsExpense}
+                                                customInput={TextField}
+                                                error={touched.logisticsExpense && Boolean(errors.logisticsExpense)}
+                                                helperText={touched.logisticsExpense && errors.logisticsExpense}
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                }}
+                                                thousandSeparator={"."}
+                                                decimalSeparator={","}
+                                                onValueChange={(values) => {
+                                                    const {formattedValue, value, floatValue} = values;
+                                                    const re = /^[0-9\b]+$/;
+                                                    if (re.test(floatValue)) {
+                                                        setFieldValue('logisticsExpense', floatValue)
+                                                    }
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} md={3}>
+                                            <div className={'label-input'}>Chi phí ăn trưa</div>
+                                            <NumericFormat
+                                                id='lunchExpense'
+                                                name='lunchExpense'
+                                                className={'formik-input text-right'}
+                                                size={"small"}
+                                                value={values.lunchExpense}
+                                                customInput={TextField}
+                                                error={touched.lunchExpense && Boolean(errors.lunchExpense)}
+                                                helperText={touched.lunchExpense && errors.lunchExpense}
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                }}
+                                                thousandSeparator={"."}
+                                                decimalSeparator={","}
+                                                onValueChange={(values) => {
+                                                    const {formattedValue, value, floatValue} = values;
+                                                    const re = /^[0-9\b]+$/;
+                                                    if (re.test(floatValue)) {
+                                                        setFieldValue('lunchExpense', floatValue)
+                                                    }
+                                                }}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                    <div className={'label-group-input'}>
                                         <div>Thông tin khác</div>
                                     </div>
                                     <Grid container spacing={2.5}>
@@ -632,7 +726,8 @@ export default function CreateUpdateTrainingSession(props) {
                                                     <div className={'label-group-input'}>
                                                         <div>Danh sách học viên</div>
                                                     </div>
-                                                    <Button onClick={saveAttendance} className={'button-header'} variant="contained" type='button'>
+                                                    <Button onClick={saveAttendance} className={'button-header'}
+                                                            variant="contained" type='button'>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                                              viewBox="0 0 30 30" fill="none">
                                                             <path
@@ -701,7 +796,9 @@ export default function CreateUpdateTrainingSession(props) {
                                                                                     <TableCell rowSpan={1}
                                                                                                align="center">{(item.stt)}</TableCell>
                                                                                     <TableCell rowSpan={1}>
-                                                                                        <FormControl className={'attendance-form-control'} fullWidth>
+                                                                                        <FormControl
+                                                                                            className={'attendance-form-control'}
+                                                                                            fullWidth>
                                                                                             <Select
                                                                                                 labelId="is_infinite_label"
                                                                                                 className={getValueKeyToId(attendanceData, 'colorClass', item.statusId)}
@@ -709,7 +806,8 @@ export default function CreateUpdateTrainingSession(props) {
                                                                                                 onChange={event => onChangeAttendance(event, item.student.id)}
                                                                                                 size={"small"}>
                                                                                                 {attendanceData.map((item) =>
-                                                                                                    <MenuItem value={item.id}>{item.name}</MenuItem>
+                                                                                                    <MenuItem
+                                                                                                        value={item.id}>{item.name}</MenuItem>
                                                                                                 )}
                                                                                             </Select>
                                                                                         </FormControl>

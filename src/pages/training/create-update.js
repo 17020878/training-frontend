@@ -51,7 +51,7 @@ export default function CreateUpdateTraining(props) {
     const [plan, setPlan] = useState([]);
     const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
     const checkedIcon = <CheckBoxIcon fontSize="small"/>;
-    const [expensePerLecturer, setExpensePerLecturer] = useState('')
+    const [lecturerExpense, setlecturerExpense] = useState('')
     const [expenseAllLecturer, setExpenseAllLecturer] = useState('')
     const [logisticsExpense, setLogisticsExpense] = useState('')
     const [lunchExpense, setLunchExpense] = useState('')
@@ -75,11 +75,10 @@ export default function CreateUpdateTraining(props) {
         formTraining: '',
         formOfImplement: '',
         organizationLocation: '',
-        expensePerLecturer: '',
-        expenseAllLecturer: '',
+        lecturerExpense: '',
         logisticsExpense: '',
         lunchExpense: '',
-        totalExpense: '',
+        //totalExpense: '',
         startDate: '',
         endDate: '',
         notes: '',
@@ -87,13 +86,6 @@ export default function CreateUpdateTraining(props) {
 
 
 //=====================================================================================================
-    useEffect(() => {
-        setTotal((Number(expensePerLecturer) || 0)
-            + (Number(expenseAllLecturer) || 0)
-            + (Number(logisticsExpense) || 0)
-            + (Number(lunchExpense) || 0));
-    }, [
-       expensePerLecturer, expenseAllLecturer, logisticsExpense, lunchExpense]);
     useEffect(() => {
         getOrganization().then(r => {
             setListOrganization(convertToAutoComplete(r.data, 'name'));
@@ -139,12 +131,7 @@ export default function CreateUpdateTraining(props) {
                 setListUnitOrganization(r.data.unitOrganizations)
                 setListLecturersObject(r.data.lecturerObjects)
                 setListStudentsObject(r.data.studentObjects)
-                setTotal((Number(r.data.expensePerLecturer) || 0)
-                    + (Number(r.data.expenseAllLecturer) || 0)
-                    + (Number(r.data.logisticsExpense) || 0)
-                    + (Number(r.data.lunchExpense) || 0));
-                setExpensePerLecturer(r.data.expensePerLecturer)
-                setExpenseAllLecturer(r.data.expenseAllLecturer)
+                setlecturerExpense(r.data.lecturerExpense)
                 setLogisticsExpense(r.data.logisticsExpense)
                 setLunchExpense(r.data.lunchExpense)
             }).catch(e => {
@@ -175,11 +162,11 @@ export default function CreateUpdateTraining(props) {
             formTrainingId: values.formTrainingId ?? '',
             formOfImplement: values.formOfImplement ?? '',
             organizationLocationId: values.organizationLocationId ?? '',
-            expensePerLecturer: values.expensePerLecturer ?? '',
-            expenseAllLecturer: values.expenseAllLecturer ?? '',
-            logisticsExpense: values.logisticsExpense ?? '',
-            lunchExpense: values.lunchExpense ?? '',
-            totalExpense: total ?? '',
+            // lecturerExpense: values.lecturerExpense ?? '',
+            // expenseAllLecturer: values.expenseAllLecturer ?? '',
+            // logisticsExpense: values.logisticsExpense ?? '',
+            // lunchExpense: values.lunchExpense ?? '',
+            // totalExpense: total ?? '',
             startDate: values.startDate ?? '',
             endDate: values.endDate ?? '',
             notes: values.notes ?? '',
@@ -263,11 +250,11 @@ export default function CreateUpdateTraining(props) {
                         formTrainingId: idUpdate ? info.formTraining.id : '',
                         formOfImplement: idUpdate ? info.formOfImplement : '',
                         organizationLocationId: idUpdate ? info.organizationLocation.id : '',
-                        expensePerLecturer: idUpdate ? info.expensePerLecturer : '',
-                        expenseAllLecturer: idUpdate ? info.expenseAllLecturer : '',
+                        lecturerExpense: idUpdate ? info.lecturerExpense : '',
+                        //expenseAllLecturer: idUpdate ? info.expenseAllLecturer : '',
                         logisticsExpense: idUpdate ? info.logisticsExpense : '',
                         lunchExpense: idUpdate ? info.lunchExpense : '',
-                        totalExpense: idUpdate ? info.totalExpense : '',
+                        //totalExpense: idUpdate ? info.totalExpense : '',
                         startDate: idUpdate ? info.startDate : '',
                         endDate: idUpdate ? info.endDate : '',
                         notes: idUpdate ? info.notes : '',
@@ -279,17 +266,6 @@ export default function CreateUpdateTraining(props) {
                     }>
                     {props => {
                         const {setFieldValue, values, touched, errors, handleChange, handleSubmit} = props;
-                        const handleValueChange = async (name, value) => {
-                            if (name == 'expensePerLecturer')
-                                await setExpensePerLecturer(value)
-                            else if (name == 'expenseAllLecturer')
-                                await setExpenseAllLecturer(value)
-                            else if (name == 'logisticsExpense')
-                                await setLogisticsExpense(value)
-                            else
-                                await setLunchExpense(value)
-                            setFieldValue(name, value);
-                        };
                         return (
                             <Form onSubmit={handleSubmit}>
                                 <Box sx={{flexGrow: 1}} className={'form-content'}>
@@ -789,142 +765,94 @@ export default function CreateUpdateTraining(props) {
                                             <Divider/>
                                         </Grid>
                                     </Grid>
-                                    <div className={'label-group-input'}>
-                                        <div>Chi phí</div>
-                                    </div>
-                                    <Grid container spacing={2.5}>
-                                        <Grid item xs={6} md={3}>
-                                            <div className={'label-input'}>Đơn giá giảng viên/giờ</div>
-                                            <NumericFormat
-                                                id='expensePerLecturer'
-                                                name='expensePerLecturer'
-                                                className={'formik-input text-right'}
-                                                size={"small"}
-                                                value={values.expensePerLecturer}
-                                                customInput={TextField}
-                                                error={touched.expensePerLecturer && Boolean(errors.expensePerLecturer)}
-                                                helperText={touched.expensePerLecturer && errors.expensePerLecturer}
-                                                InputProps={{
-                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+                                    {
+                                        lecturerExpense && logisticsExpense && lunchExpense
+                                            ? <div className={'label-group-input'}>
+                                                <div>Chi phí</div>
+                                            </div>
+                                            : ''
+                                    }
+                                    {
+                                        lecturerExpense && logisticsExpense && lunchExpense
+                                            ? <Grid container spacing={2.5}>
+                                                {
+                                                    lecturerExpense
+                                                    ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Chi phí giảng viên</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='lecturerExpense'
+                                                                name='lecturerExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.lecturerExpense}
+                                                                customInput={TextField}
+                                                                error={touched.lecturerExpense && Boolean(errors.lecturerExpense)}
+                                                                helperText={touched.lecturerExpense && errors.lecturerExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
 
-                                                }}
-                                                thousandSeparator={"."}
-                                                decimalSeparator={","}
-                                                onValueChange={(values) => {
-                                                    const {formattedValue, value, floatValue} = values;
-                                                    const re = /^[0-9\b]+$/;
-                                                    if (re.test(floatValue)) {
-                                                        handleValueChange('expensePerLecturer', floatValue)
-                                                    }
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={6} md={3}>
-                                            <div className={'label-input'}>Tổng chi phí giảng viên</div>
-                                            <NumericFormat
-                                                id='expenseAllLecturer'
-                                                name='expenseAllLecturer'
-                                                className={'formik-input text-right'}
-                                                size={"small"}
-                                                value={values.expenseAllLecturer}
-                                                customInput={TextField}
-                                                error={touched.expenseAllLecturer && Boolean(errors.expenseAllLecturer)}
-                                                helperText={touched.expenseAllLecturer && errors.expenseAllLecturer}
-                                                InputProps={{
-                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                    : ''
+                                                }
+                                                {
+                                                    logisticsExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Chi phí hậu cần</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='logisticsExpense'
+                                                                name='logisticsExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.logisticsExpense}
+                                                                customInput={TextField}
+                                                                error={touched.logisticsExpense && Boolean(errors.logisticsExpense)}
+                                                                helperText={touched.logisticsExpense && errors.logisticsExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
 
-                                                }}
-                                                thousandSeparator={"."}
-                                                decimalSeparator={","}
-                                                onValueChange={(values) => {
-                                                    const {formattedValue, value, floatValue} = values;
-                                                    const re = /^[0-9\b]+$/;
-                                                    if (re.test(floatValue)) {
-                                                        handleValueChange('expenseAllLecturer', floatValue)
-                                                    }
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={6} md={3}>
-                                            <div className={'label-input'}>Chi phí hậu cần</div>
-                                            <NumericFormat
-                                                id='logisticsExpense'
-                                                name='logisticsExpense'
-                                                className={'formik-input text-right'}
-                                                size={"small"}
-                                                value={values.logisticsExpense}
-                                                customInput={TextField}
-                                                error={touched.logisticsExpense && Boolean(errors.logisticsExpense)}
-                                                helperText={touched.logisticsExpense && errors.logisticsExpense}
-                                                InputProps={{
-                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
+                                                {
+                                                    lunchExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Chi phí ăn trưa</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='lunchExpense'
+                                                                name='lunchExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.lunchExpense}
+                                                                customInput={TextField}
+                                                                error={touched.lunchExpense && Boolean(errors.lunchExpense)}
+                                                                helperText={touched.lunchExpense && errors.lunchExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
 
-                                                }}
-                                                thousandSeparator={"."}
-                                                decimalSeparator={","}
-                                                onValueChange={(values) => {
-                                                    const {formattedValue, value, floatValue} = values;
-                                                    const re = /^[0-9\b]+$/;
-                                                    if (re.test(floatValue)) {
-                                                        handleValueChange('logisticsExpense', floatValue)
-                                                    }
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={6} md={3}>
-                                            <div className={'label-input'}>Chi phí ăn trưa</div>
-                                            <NumericFormat
-                                                id='lunchExpense'
-                                                name='lunchExpense'
-                                                className={'formik-input text-right'}
-                                                size={"small"}
-                                                value={values.lunchExpense}
-                                                customInput={TextField}
-                                                error={touched.lunchExpense && Boolean(errors.lunchExpense)}
-                                                helperText={touched.lunchExpense && errors.lunchExpense}
-                                                InputProps={{
-                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
-
-                                                }}
-                                                thousandSeparator={"."}
-                                                decimalSeparator={","}
-                                                onValueChange={(values) => {
-                                                    const {formattedValue, value, floatValue} = values;
-                                                    const re = /^[0-9\b]+$/;
-                                                    if (re.test(floatValue)) {
-                                                        handleValueChange('lunchExpense', floatValue)
-                                                    }
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={6} md={3}>
-                                            <div className={'label-input'}>Tổng chi phí</div>
-                                            <NumericFormat
-                                                disabled={true}
-                                                id='totalExpense'
-                                                name='totalExpense'
-                                                className={'formik-input text-right'}
-                                                size={"small"}
-                                                value={total}
-                                                customInput={TextField}
-                                                error={touched.totalExpense && Boolean(errors.totalExpense)}
-                                                helperText={touched.totalExpense && errors.totalExpense}
-                                                InputProps={{
-                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
-
-                                                }}
-                                                thousandSeparator={"."}
-                                                decimalSeparator={","}
-                                                onValueChange={(values) => {
-                                                    const {formattedValue, value, floatValue} = values;
-                                                    const re = /^[0-9\b]+$/;
-                                                    if (re.test(floatValue)) {
-                                                        setFieldValue('totalExpense', floatValue)
-                                                    }
-                                                }}
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
+                                                <Grid item xs={6} md={12}>
+                                                    <Divider/>
+                                                </Grid>
+                                            </Grid>
+                                            : ''
+                                    }
                                     <div className={'label-group-input'}>
                                         <div>Nội dung chi tiết</div>
                                     </div>
