@@ -8,7 +8,7 @@ import {
     Divider,
     FormControl,
     FormHelperText,
-    Grid, InputAdornment,
+    Grid, InputAdornment, Menu,
     MenuItem,
     Select,
     Table,
@@ -18,7 +18,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    TextField
+    TextField, Tooltip
 } from "@mui/material";
 import {Form, Formik} from 'formik';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
@@ -29,14 +29,14 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import apiTrainingSession from "../../api/training-session";
 import Utils, {
     convertArr,
-    deleteAllIdSame, formatDateToTimeStamp,
+    deleteAllIdSame, formatDateToTimeStamp, formatVND,
     getDateTimeFromTimestamp,
     getNameToId,
     getValueKeyToId, removeDuplicateObjects, updateStudentStatus
 } from "../../constants/utils";
 import {DesktopDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {attendanceData, sexData} from "../../constants/json_define";
+import {attendanceData, sexData, tableName} from "../../constants/json_define";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import apiCategory from "../../api/category";
@@ -47,6 +47,9 @@ import apiTrainingClass from "../../api/training-class";
 import apiAttendance from "../../api/attendance";
 import ModalConfirm from "../../components/ModalConfirm";
 import {NumericFormat} from "react-number-format";
+import apiTableConfig from "../../api/tableConfig";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SettingColumnTable from "../../components/SettingColumnTable";
 
 export default function CreateUpdateTrainingSession(props) {
     const dispatch = useDispatch();
@@ -66,6 +69,14 @@ export default function CreateUpdateTrainingSession(props) {
     const [listFileServer, setListFileServer] = useState([])
     const [listDeletedAttachment, setListDeletedAttachment] = useState([])
     const [listAttendanceStudent, setListAttendanceStudent] = useState([])
+    const [logisticsExpense, setLogisticsExpense] = useState('')
+    const [lunchExpense, setLunchExpense] = useState('')
+    const [lecturerExpense, setLecturerExpense] = useState('')
+    const [total, setTotal] = useState('')
+    const [anchorElSettingTable, setAnchorElSettingTable] = useState(null);
+    const openSettingTable = Boolean(anchorElSettingTable);
+    const [isRefreshConfigTable, setIsRefreshConfigTable] = useState(false)
+    const [columns, setColumns] = useState([])
     const [info, setInfo] = useState({
         name: '',
         trainingClass: '',
@@ -78,6 +89,7 @@ export default function CreateUpdateTrainingSession(props) {
         lecturerExpense: '',
         logisticsExpense: '',
         lunchExpense: '',
+        totalExpense: '',
         notes: '',
     })
     const [listResult, setListResult] = React.useState({
@@ -91,7 +103,22 @@ export default function CreateUpdateTrainingSession(props) {
     const [loading, setLoading] = useState(false)
 
 //=====================================================================================================
-
+    useEffect(() => {
+        getConfigTableApi(getNameToId(tableName, 6)).then(r => {
+            console.log("config table", r)
+            let list = r.data;
+            list.sort((a, b) => a.index - b.index);
+            console.log("list", list)
+            setColumns(list);
+        })
+    }, [isRefreshConfigTable])
+    useEffect(() => {
+        const total =
+            (Number(lecturerExpense) || 0) +
+            (Number(logisticsExpense) || 0) +
+            (Number(lunchExpense) || 0);
+        setTotal(total)
+    }, [lecturerExpense, logisticsExpense, lunchExpense,]);
     useEffect(() => {
         getAllLecturerApi().then(r => {
             setAllLecturers(r.data)
@@ -123,6 +150,12 @@ export default function CreateUpdateTrainingSession(props) {
                 setInfo(r.data)
                 setListLecturers(r.data.lecturers)
                 setListFileServer(r.data.documents)
+                setTotal((Number(r.data.lecturerExpense) || 0)
+                    + (Number(r.data.logisticsExpense) || 0)
+                    + (Number(r.data.lunchExpense) || 0));
+                setLecturerExpense(r.data.lecturerExpense)
+                setLogisticsExpense(r.data.logisticsExpense)
+                setLunchExpense(r.data.lunchExpense)
             }).catch(e => {})
         }
 
@@ -230,9 +263,10 @@ export default function CreateUpdateTrainingSession(props) {
         formData.append("lecturerIds", listLecturers.map(item => item.id))
         formData.append("imageLink", values.imageLink)
         formData.append("notes", values.notes)
-        formData.append("lecturerExpense", values.lecturerExpense)
-        formData.append("logisticsExpense", values.logisticsExpense)
-        formData.append("lunchExpense", values.lunchExpense)
+        formData.append("lecturerExpense", values.lecturerExpense ?? 0)
+        formData.append("logisticsExpense", values.logisticsExpense ?? 0)
+        formData.append("lunchExpense", values.lunchExpense ?? 0)
+        formData.append("totalExpense", total ?? 0)
 
         // formData.forEach((value, key) => {
         //     console.log(key, value);
@@ -273,6 +307,12 @@ export default function CreateUpdateTrainingSession(props) {
             setOpenModal(false)
         })
     }
+    const handleClickNotification = (event) => {
+        setAnchorElSettingTable(event.currentTarget);
+    };
+    const handleCloseNotification = () => {
+        setAnchorElSettingTable(null);
+    };
 //=====================================================================================================
     const back = () => {
         navigate('/training-session')
@@ -302,6 +342,9 @@ export default function CreateUpdateTrainingSession(props) {
     const updateAttendanceApi = (data) => {
         return apiAttendance.updateAttendance(data);
     }
+    const getConfigTableApi = (tableName) => {
+        return apiTableConfig.get(tableName)
+    }
 //=====================================================================================================
     return (
         <div className={'main-content'}>
@@ -330,6 +373,7 @@ export default function CreateUpdateTrainingSession(props) {
                         lecturerExpense: idUpdate ? info.lecturerExpense : '',
                         logisticsExpense: idUpdate ? info.logisticsExpense : '',
                         lunchExpense: idUpdate ? info.lunchExpense : '',
+                        totalExpense: idUpdate ? info.totalExpense : '',
                         notes: idUpdate ? info.notes : '',
                     }}
                     onSubmit={
@@ -339,6 +383,15 @@ export default function CreateUpdateTrainingSession(props) {
                     }>
                     {props => {
                         const {setFieldValue, values, touched, errors, handleChange, handleSubmit} = props;
+                        const handleValueChange = async (name, value) => {
+                            if (name == 'lecturerExpense')
+                                await setLecturerExpense(value)
+                            else if (name == 'logisticsExpense')
+                                await setLogisticsExpense(value)
+                            else
+                                await setLunchExpense(value)
+                            setFieldValue(name, value);
+                        };
                         return (
                             <Form onSubmit={handleSubmit}>
                                 <div className={'flexGroup2'}>
@@ -542,7 +595,7 @@ export default function CreateUpdateTrainingSession(props) {
                                                     const {formattedValue, value, floatValue} = values;
                                                     const re = /^[0-9\b]+$/;
                                                     if (re.test(floatValue)) {
-                                                        setFieldValue('lecturerExpense', floatValue)
+                                                        handleValueChange('lecturerExpense', floatValue)
                                                     }
                                                 }}
                                             />
@@ -568,7 +621,7 @@ export default function CreateUpdateTrainingSession(props) {
                                                     const {formattedValue, value, floatValue} = values;
                                                     const re = /^[0-9\b]+$/;
                                                     if (re.test(floatValue)) {
-                                                        setFieldValue('logisticsExpense', floatValue)
+                                                        handleValueChange('logisticsExpense', floatValue)
                                                     }
                                                 }}
                                             />
@@ -594,7 +647,34 @@ export default function CreateUpdateTrainingSession(props) {
                                                     const {formattedValue, value, floatValue} = values;
                                                     const re = /^[0-9\b]+$/;
                                                     if (re.test(floatValue)) {
-                                                        setFieldValue('lunchExpense', floatValue)
+                                                        handleValueChange('lunchExpense', floatValue)
+                                                    }
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} md={3}>
+                                            <div className={'label-input'}>Tổng chi phí</div>
+                                            <NumericFormat
+                                                disabled={true}
+                                                id='totalExpense'
+                                                name='totalExpense'
+                                                className={'formik-input text-right'}
+                                                size={"small"}
+                                                value={total}
+                                                customInput={TextField}
+                                                error={touched.totalExpense && Boolean(errors.totalExpense)}
+                                                helperText={touched.totalExpense && errors.totalExpense}
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                }}
+                                                thousandSeparator={"."}
+                                                decimalSeparator={","}
+                                                onValueChange={(values) => {
+                                                    const {formattedValue, value, floatValue} = values;
+                                                    const re = /^[0-9\b]+$/;
+                                                    if (re.test(floatValue)) {
+                                                        setFieldValue('totalExpense', floatValue)
                                                     }
                                                 }}
                                             />
@@ -726,15 +806,35 @@ export default function CreateUpdateTrainingSession(props) {
                                                     <div className={'label-group-input'}>
                                                         <div>Danh sách học viên</div>
                                                     </div>
-                                                    <Button onClick={saveAttendance} className={'button-header'}
-                                                            variant="contained" type='button'>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
-                                                             viewBox="0 0 30 30" fill="none">
-                                                            <path
-                                                                d="M21.25 3.75H6.25C4.8625 3.75 3.75 4.875 3.75 6.25V23.75C3.75 25.125 4.8625 26.25 6.25 26.25H23.75C25.125 26.25 26.25 25.125 26.25 23.75V8.75L21.25 3.75ZM23.75 23.75H6.25V6.25H20.2125L23.75 9.7875V23.75ZM15 15C12.925 15 11.25 16.675 11.25 18.75C11.25 20.825 12.925 22.5 15 22.5C17.075 22.5 18.75 20.825 18.75 18.75C18.75 16.675 17.075 15 15 15ZM7.5 7.5H18.75V12.5H7.5V7.5Z"
-                                                                fill="#1F2251"/>
-                                                        </svg>
-                                                        Điểm danh</Button>
+                                                    <div className={'flexGroup2'}>
+                                                        <Tooltip className={'icon-config-table'} title={"Cài đặt hiển thị"}>
+                                                            <SettingsIcon onClick={handleClickNotification}/>
+                                                        </Tooltip>
+                                                        <Menu
+                                                            id="icon-notification"
+                                                            anchorEl={anchorElSettingTable}
+                                                            open={openSettingTable}
+                                                            onClose={handleCloseNotification}
+                                                            MenuListProps={{
+                                                                'aria-labelledby': 'basic-button',
+                                                            }}>
+                                                            <SettingColumnTable columns={columns}
+                                                                                nameTable={getNameToId(tableName, 6)}
+                                                                                isRefreshConfigTable={isRefreshConfigTable}
+                                                                                setIsRefreshConfigTable={setIsRefreshConfigTable}
+                                                            >
+                                                            </SettingColumnTable>
+                                                        </Menu>
+                                                        <Button onClick={saveAttendance} className={'button-header ml15'}
+                                                                variant="contained" type='button'>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                                                 viewBox="0 0 30 30" fill="none">
+                                                                <path
+                                                                    d="M21.25 3.75H6.25C4.8625 3.75 3.75 4.875 3.75 6.25V23.75C3.75 25.125 4.8625 26.25 6.25 26.25H23.75C25.125 26.25 26.25 25.125 26.25 23.75V8.75L21.25 3.75ZM23.75 23.75H6.25V6.25H20.2125L23.75 9.7875V23.75ZM15 15C12.925 15 11.25 16.675 11.25 18.75C11.25 20.825 12.925 22.5 15 22.5C17.075 22.5 18.75 20.825 18.75 18.75C18.75 16.675 17.075 15 15 15ZM7.5 7.5H18.75V12.5H7.5V7.5Z"
+                                                                    fill="#1F2251"/>
+                                                            </svg>
+                                                            Điểm danh</Button>
+                                                    </div>
                                                 </div>
                                                 <div className={'main-content-body-result mt10'}>
                                                     <TableContainer className={'table-est'} sx={{maxHeight: 440}}>
@@ -753,26 +853,11 @@ export default function CreateUpdateTrainingSession(props) {
                                                                                        align="center">STT</TableCell>
                                                                             <TableCell style={{minWidth: 150}}
                                                                                        align="center">Điểm danh</TableCell>
-                                                                            <TableCell style={{minWidth: 150}}>Họ và
-                                                                                tên</TableCell>
-                                                                            <TableCell style={{minWidth: 150}}>Năm
-                                                                                sinh</TableCell>
-                                                                            <TableCell style={{minWidth: 80}}>Giới
-                                                                                tính</TableCell>
-                                                                            <TableCell style={{minWidth: 150}}>Chức
-                                                                                danh</TableCell>
-                                                                            <TableCell
-                                                                                style={{minWidth: 250}}>Khối</TableCell>
-                                                                            <TableCell style={{minWidth: 250}}>Đơn
-                                                                                vị</TableCell>
-                                                                            <TableCell style={{minWidth: 250}}>Phòng
-                                                                                ban</TableCell>
-                                                                            <TableCell style={{minWidth: 150}}>Số điện
-                                                                                thoại</TableCell>
-                                                                            <TableCell
-                                                                                style={{minWidth: 150}}>Email</TableCell>
-                                                                            <TableCell style={{minWidth: 250}}>Ghi
-                                                                                chú</TableCell>
+                                                                            {columns.map((column, columnIndex) => {
+                                                                                if (column.visible) {
+                                                                                    return <TableCell style={{minWidth: 200}}>{column.name}</TableCell>
+                                                                                }
+                                                                            })}
                                                                         </TableRow>
                                                                     </TableHead>
                                                                     <TableBody className={'super-app-theme--body'}>
@@ -812,26 +897,57 @@ export default function CreateUpdateTrainingSession(props) {
                                                                                             </Select>
                                                                                         </FormControl>
                                                                                     </TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.name}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{getDateTimeFromTimestamp(item.student.dateOfBirth)}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{getNameToId(sexData, item.student.sex)}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.jobTitle}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.blockOrganization.name}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.unitOrganization.name}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.departmentOrganization.name}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.phone}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.email}</TableCell>
-                                                                                    <TableCell
-                                                                                        rowSpan={1}>{item.student.notes}</TableCell>
+                                                                                    {columns.map((column, columnIndex) => {
+                                                                                        if (column.visible) {
+                                                                                            if (column.code === 'lecturers' || column.code === 'lecturerObjects' || column.code === 'studentObjects') {
+                                                                                                return (
+                                                                                                    <TableCell key={columnIndex} rowSpan={1}>
+                                                                                                        {item.student[column.code].map((cc, index) => (
+                                                                                                            <p key={index}>{cc.name}</p>
+                                                                                                        ))}
+                                                                                                    </TableCell>
+                                                                                                );
+                                                                                            } else if (column.code === 'blockOrganization' ||
+                                                                                                column.code === 'unitOrganization' ||
+                                                                                                column.code === 'trainingType' ||
+                                                                                                column.code === 'plan' ||
+                                                                                                column.code === 'formTraining' ||
+                                                                                                column.code === 'organizationLocation') {
+                                                                                                return (
+                                                                                                    <TableCell key={columnIndex} rowSpan={1}>
+                                                                                                        {item.student[column.code].name}
+                                                                                                    </TableCell>
+                                                                                                );
+                                                                                            }else if (column.code === 'expensePerLecturer' ||
+                                                                                                column.code === 'expenseAllLecturer' ||
+                                                                                                column.code === 'logisticsExpense' ||
+                                                                                                column.code === 'lunchExpense' ||
+                                                                                                column.code === 'totalExpense') {
+                                                                                                return (
+                                                                                                    <TableCell key={columnIndex} rowSpan={1}>
+                                                                                                        {formatVND(item.student[column.code])}
+                                                                                                    </TableCell>
+                                                                                                );
+                                                                                            } else if (column.code === 'startDate' || column.code === 'endDate' || column.code === 'dateOfBirth') {
+                                                                                                return (
+                                                                                                    <TableCell key={columnIndex} rowSpan={1}>
+                                                                                                        {getDateTimeFromTimestamp(item.student[column.code])}
+                                                                                                    </TableCell>
+                                                                                                );
+                                                                                            } else if (column.code === 'planTime') {
+                                                                                                return (
+                                                                                                    <TableCell rowSpan={1}>{new Date(item.student[column.code]).getFullYear()}</TableCell>
+                                                                                                );
+                                                                                            }else {
+                                                                                                return (
+                                                                                                    <TableCell key={columnIndex} rowSpan={1}>
+                                                                                                        {item.student[column.code]}
+                                                                                                    </TableCell>
+                                                                                                );
+                                                                                            }
+                                                                                        }
+                                                                                        return "";
+                                                                                    })}
                                                                                 </TableRow>
                                                                             </>
                                                                         ))}

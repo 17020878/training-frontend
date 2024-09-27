@@ -61,6 +61,7 @@ const ModalListStudent = (props) => {
     const [expandedKeys, setExpandedKeys] = useState(currentUser.advanceSearch.organizationExpanded);
     const [isInitialRenderOrganization, setIsInitialRenderOrganization] = useState(false);
 //=====================================================================================================
+    console.log(listOrganizations)
     useEffect(() => {
         setListStudents(listStudentsParent)
     },[listStudentsParent])

@@ -26,6 +26,7 @@ import dayjs from "dayjs";
 import {sexData} from "../../constants/json_define";
 import apiOrganization from "../../api/organization";
 import {convertToAutoComplete} from "../../constants/common";
+import apiCategory from "../../api/category";
 
 export default function CreateUpdateStudent(props) {
     const dispatch = useDispatch();
@@ -38,8 +39,7 @@ export default function CreateUpdateStudent(props) {
     const [blockOrganizationId, setBlockOrganizationId] = useState('')
     const [unitOrganizationId, setUnitOrganizationId] = useState('')
     const [departmentOrganizationId, setDepartmentOrganizationId] = useState('')
-
-
+    const [studentObject, setStudentObject] = useState([]);
     const [info, setInfo] = useState({
         name: '',
         dateOfBirth: '',
@@ -51,11 +51,17 @@ export default function CreateUpdateStudent(props) {
         phone: '',
         email: '',
         notes: '',
+        setStudentObject: ''
     })
-
-
 //=====================================================================================================
-
+    useEffect(() => {
+        getCategoryApi({
+            paging: false,
+            type: "StudentObject"
+        }).then(r => {
+            if (r.data.responses != null) setStudentObject(r.data.responses)
+        })
+    },[])
     useEffect(() => {
         getOrganization().then(r => {
             setListOrganization(convertToAutoComplete(r.data, 'name'));
@@ -87,6 +93,7 @@ export default function CreateUpdateStudent(props) {
             "blockOrganizationId": values.blockOrganizationId ?? '',
             "unitOrganizationId": values.unitOrganizationId ?? '',
             "departmentOrganizationId": values.departmentOrganizationId ?? '',
+            "studentObjectId": values.studentObjectId ?? '',
             "jobTitle": values.jobTitle ?? '',
             "phone": values.phone ?? '',
             "email": values.email ?? '',
@@ -135,6 +142,9 @@ export default function CreateUpdateStudent(props) {
     const getDetailApi = (idUpdate) => {
         return apiStudent.getDetailStudent(idUpdate);
     }
+    const getCategoryApi = (body) => {
+        return apiCategory.getCategory(body);
+    }
 //=====================================================================================================
     return (
         <div className={'main-content'}>
@@ -156,6 +166,7 @@ export default function CreateUpdateStudent(props) {
                         unitOrganizationName: idUpdate ? info.unitOrganization.name : '',
                         departmentOrganizationId: idUpdate ? info.departmentOrganization.id : '',
                         departmentOrganizationName: idUpdate ? info.departmentOrganization.name : '',
+                        studentObjectId: idUpdate ? info.studentObject.id : '',
                         jobTitle: idUpdate ? info.jobTitle : '',
                         phone: idUpdate ? info.phone : '',
                         email: idUpdate ? info.email : '',
@@ -208,6 +219,25 @@ export default function CreateUpdateStudent(props) {
                                                         size={"small"}  {...params} />}
                                                 />
                                             </LocalizationProvider>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Đối tượng học viên<span
+                                                className={'error-message'}>*</span></div>
+                                            <FormControl fullWidth>
+                                                <Select
+                                                    labelId="is_infinite_label"
+                                                    id='studentObjectId'
+                                                    name='studentObjectId'
+                                                    value={values.studentObjectId}
+                                                    onChange={handleChange}
+                                                    size={"small"}>
+                                                    {studentObject.map((item) =>
+                                                        <MenuItem value={item.id}>{item.name}</MenuItem>
+                                                    )}
+                                                </Select>
+                                                <FormHelperText
+                                                    className={'error-message'}>{errors.studentObjectId}</FormHelperText>
+                                            </FormControl>
                                         </Grid>
                                         <Grid item xs={4} md={3}>
                                             <div className={'label-input'}>Giới tính<span

@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Checkbox, Grid, TextField, Typography} from "@mui/material";
+import {
+    Box,
+    Button,
+    Checkbox,
+    FormControl,
+    FormHelperText,
+    Grid,
+    MenuItem,
+    Select,
+    TextField,
+    Typography
+} from "@mui/material";
 import {Form, Formik} from 'formik';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import {useNavigate, useSearchParams} from "react-router-dom";
@@ -11,13 +22,14 @@ import Utils from "../../constants/utils";
 import {DesktopDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import apiCategory from "../../api/category";
 export default function CreateUpdateLecturer(props) {
     const dispatch = useDispatch();
     const [location, setLocation] = useSearchParams();
     const navigate = useNavigate();
     const {isUpdate} = props
     const [idUpdate, setIdUpdate] = useState(null)
-
+    const [lecturerObject, setLecturerObject] = useState([]);
     const [info, setInfo] = useState({
         name: '',
         birdOfDate: '',
@@ -29,11 +41,17 @@ export default function CreateUpdateLecturer(props) {
         experience: '',
         code: '',
         description: '',
+        lecturerObject: ''
     })
-
-
 //=====================================================================================================
-
+    useEffect(() => {
+        getCategoryApi({
+            paging: false,
+            type: "LecturerObject"
+        }).then(r => {
+            if (r.data.responses != null) setLecturerObject(r.data.responses)
+        })
+    },[])
     useEffect(() => {
         if (location.get('id')) {
             setIdUpdate(location.get('id'));
@@ -57,6 +75,7 @@ export default function CreateUpdateLecturer(props) {
             "phone": values.phone ?? '',
             "email": values.email ?? '',
             "position": values.position ?? '',
+            "lecturerObjectId": values.lecturerObjectId ?? '',
             "workPlace": values.workPlace ?? '',
             "experience": values.experience ?? '',
             "note": values.note ?? '',
@@ -102,6 +121,9 @@ export default function CreateUpdateLecturer(props) {
     const getDetailApi = (idUpdate) => {
         return apiLecturer.getDetailLecturer(idUpdate);
     }
+    const getCategoryApi = (body) => {
+        return apiCategory.getCategory(body);
+    }
 //=====================================================================================================
     return (
         <div className={'main-content'}>
@@ -122,6 +144,7 @@ export default function CreateUpdateLecturer(props) {
                         position: idUpdate ? info.position : '',
                         workPlace: idUpdate ? info.workPlace : '',
                         experience: idUpdate ? info.experience : '',
+                        lecturerObjectId: idUpdate ? info.lecturerObject.id : '',
                         code: idUpdate ? info.code : '',
                         description: idUpdate ? info.description : '',
                     }}
@@ -171,6 +194,25 @@ export default function CreateUpdateLecturer(props) {
                                                 error={touched.code && Boolean(errors.code)}
                                                 helperText={touched.code && errors.code}
                                             />
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Đối tượng giảng viên<span
+                                                className={'error-message'}>*</span></div>
+                                            <FormControl fullWidth>
+                                                <Select
+                                                    labelId="is_infinite_label"
+                                                    id='lecturerObjectId'
+                                                    name='lecturerObjectId'
+                                                    value={values.lecturerObjectId}
+                                                    onChange={handleChange}
+                                                    size={"small"}>
+                                                    {lecturerObject.map((item) =>
+                                                        <MenuItem value={item.id}>{item.name}</MenuItem>
+                                                    )}
+                                                </Select>
+                                                <FormHelperText
+                                                    className={'error-message'}>{errors.lecturerObjectId}</FormHelperText>
+                                            </FormControl>
                                         </Grid>
                                         <Grid item xs={4} md={3}>
                                             <div className={'label-input'}>Năm sinh<span

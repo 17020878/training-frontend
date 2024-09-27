@@ -295,7 +295,7 @@ export default function CreateUpdatePlan(props) {
                                         {/*    />*/}
                                         {/*</Grid>*/}
                                         <Grid item xs={4} md={3}>
-                                            <div className={'label-input'}>Loại khóa học<span
+                                            <div className={'label-input'}>Loại khóa đào tạo<span
                                                 className={'error-message'}>*</span></div>
                                             <FormControl fullWidth>
                                                 <Autocomplete

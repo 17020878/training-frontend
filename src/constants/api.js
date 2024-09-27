@@ -1,5 +1,5 @@
-// const API_DOMAIN = 'http://localhost:8443/';
-const API_DOMAIN = 'https://training.aceoffice.vn/training_be/';
+const API_DOMAIN = 'http://localhost:8443/';
+// const API_DOMAIN = 'https://training.aceoffice.vn/training_be/';
 const API_MAP = {
     LOGIN: API_DOMAIN + 'auth/login',
     REFRESH_TOKEN: API_DOMAIN + 'auth/refresh-token',
@@ -138,6 +138,7 @@ const API_MAP = {
     GET_DETAIL_TRAINING_CLASS:API_DOMAIN+"training-class/get-training-class-detail",
     SEARCH_TRAINING_CLASS:API_DOMAIN+"training-class/search-training-class",
     GET_ALL_TRAINING_CLASS_BY_TRAINING:API_DOMAIN+"training-class/get-all-training-classes-by-training",
+    GET_ALL_TRAINING_CLASS_BY_TRAININGS:API_DOMAIN+"training-class/get-all-training-classes-by-trainings",
     //-----------------------------------------------------
     CREATE_TRAINING:API_DOMAIN+"training/create",
     DELETE_TRAINING:API_DOMAIN+"training/delete",

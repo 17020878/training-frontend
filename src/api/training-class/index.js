@@ -26,6 +26,9 @@ class ApiTrainingClass{
     updateTrainingClass = (data, id) => {
         return axiosClient.post(API_MAP.UPDATE_TRAINING_CLASS+`?id=${id}`, data);
     }
+    getAllTrainingClassByTrainings = (data) => {
+        return axiosClient.post(API_MAP.GET_ALL_TRAINING_CLASS_BY_TRAININGS,data);
+    }
 
 }
 

@@ -107,8 +107,6 @@ export function formatDateToTimeStamp(timestamp){
 }
 //kiểm tra id trong list organization là khối, đơn vị hay phòng ban
 export function getNodeType(id, data) {
-    console.log(id)
-    console.log(data)
     // Tìm nút với ID đã cho trong dữ liệu
     for (const node of data) {
         console.log(node)
@@ -265,6 +263,26 @@ export const getListStatusStudentByAttendance = (data) => {
     }
     return finalResult;
 }
+//tính toán chi phí theo đối tượng học viên
+export const expenseByStudentObject = (data) => {
+   const result = data.reduce((acc, item) => {
+        const studentId = item.studentObject.id;
+        const studentName = item.studentObject.name;
+        const expense = item.totalExpense || 0;
+
+        if (!acc[studentId]) {
+            acc[studentId] = { name: studentName, value: 0 };
+        }
+
+        acc[studentId].value += expense;
+
+        return acc;
+    }, {});
+    return Object.values(result).map((item, index) => ({
+        index: index,
+        ...item
+    }));
+}
 //đếm số lượng để cho vào thống kê
 export const typeDashboardStatistical = (jsonString, key, key1, key2) => {
     // Parse chuỗi JSON thành một mảng các object
@@ -273,14 +291,12 @@ export const typeDashboardStatistical = (jsonString, key, key1, key2) => {
     // Thống kê số lượng typeGroup
     var countByTypeGroup = {};
     objects.forEach(function(object) {
-        console.log(object)
         var typeGroup = object[key];
         if (countByTypeGroup.hasOwnProperty(typeGroup)) {
             countByTypeGroup[typeGroup] += 1;
         } else {
             countByTypeGroup[typeGroup] = 1;
         }
-        console.log(countByTypeGroup)
     });
     // Tạo JSON mới chứa thông tin thống kê
     var result = [];

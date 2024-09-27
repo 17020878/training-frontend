@@ -8,7 +8,7 @@ import {
     Divider,
     FormControl,
     FormHelperText,
-    Grid, InputAdornment,
+    Grid, InputAdornment, Menu,
     MenuItem,
     Select,
     Table,
@@ -18,7 +18,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    TextField
+    TextField, Tooltip
 } from "@mui/material";
 import {Form, Formik} from 'formik';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
@@ -27,8 +27,14 @@ import {toast} from "react-toastify";
 import {useDispatch} from "react-redux";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import apiTrainingClass from "../../api/training-class";
-import Utils, {convertArr, deleteAllIdSame, getDateTimeFromTimestamp, getNameToId} from "../../constants/utils";
-import {sexData} from "../../constants/json_define";
+import Utils, {
+    convertArr,
+    deleteAllIdSame,
+    formatVND,
+    getDateTimeFromTimestamp,
+    getNameToId
+} from "../../constants/utils";
+import {sexData, tableName} from "../../constants/json_define";
 import apiOrganization from "../../api/organization";
 import {convertToAutoComplete} from "../../constants/common";
 import apiCategory from "../../api/category";
@@ -39,6 +45,9 @@ import apiStudent from "../../api/student";
 import apiTraining from "../../api/training";
 import ModalListStudent from "./ModalListStudent";
 import {NumericFormat} from "react-number-format";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SettingColumnTable from "../../components/SettingColumnTable";
+import apiTableConfig from "../../api/tableConfig";
 
 export default function CreateUpdateTrainingClass(props) {
     const dispatch = useDispatch();
@@ -47,8 +56,10 @@ export default function CreateUpdateTrainingClass(props) {
     const {isUpdate} = props
     const [idUpdate, setIdUpdate] = useState(null)
     const [allLecturers, setAllLecturers] = useState([]);
+    const [allLecturersDefine, setAllLecturersDefine] = useState([]);
     const [listLecturers, setListLecturers] = useState([]);
     const [organizationLocation, setOrganizationLocation] = useState([]);
+    const [studentObject, setStudentObject] = useState([]);
     const [allTraining, setAllTraining] = useState([]);
     const [listOrganization, setListOrganization] = useState([])
     const [listBlockOrganization, setListBlockOrganization] = useState([])
@@ -59,9 +70,18 @@ export default function CreateUpdateTrainingClass(props) {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [loading, setLoading] = useState(false)
     const [openModalEdit, setOpenModalEdit] = useState(false)
-    const [lecturerExpense, setlecturerExpense] = useState('')
+    const [lecturerExpense, setLecturerExpense] = useState('')
     const [logisticsExpense, setLogisticsExpense] = useState('')
     const [lunchExpense, setLunchExpense] = useState('')
+    const [totalExpense, setTotalExpense] = useState('')
+    const [anchorElSettingTable, setAnchorElSettingTable] = useState(null);
+    const openSettingTable = Boolean(anchorElSettingTable);
+    const [isRefreshConfigTable, setIsRefreshConfigTable] = useState(false)
+    const [columns, setColumns] = useState([])
+    const [listStudentsObject, setListStudentsObject] = useState([]);
+    const [allStudentsObject, setAllStudentsObject] = useState([]);
+    const [listLecturersObject, setListLecturersObject] = useState([]);
+    const [allLecturersObject, setAllLecturersObject] = useState([]);
     const [listResult, setListResult] = React.useState({
         page: 0,
         pageSize: 1000,
@@ -76,21 +96,63 @@ export default function CreateUpdateTrainingClass(props) {
         training: '',
         lecturers: '',
         organizationLocation: '',
+        studentObject: '',
         students: '',
         lecturerExpense: '',
         logisticsExpense: '',
         lunchExpense: '',
+        totalExpense: '',
         notes: '',
     })
 
 
 //=====================================================================================================
     useEffect(() => {
-        getAllLecturerApi().then(r => {
-            setAllLecturers(r.data)
+        getConfigTableApi(getNameToId(tableName, 6)).then(r => {
+            let list = r.data;
+            list.sort((a, b) => a.index - b.index);
+            setColumns(list);
         })
+    }, [isRefreshConfigTable])
+    useEffect(() => {
         getAllTrainingApi().then(r => {
             setAllTraining(r.data)
+        })
+    },[])
+    useEffect(() => {
+        if (location.get('id')) {
+            getDetailApi(location.get('id')).then(r => {
+                const item = allTraining.find(entry => entry.id === r.data.training.id);
+                setListOrganization([
+                    ...item.blockOrganizations,
+                    ...item.unitOrganizations
+                ]);
+                setInfo(r.data)
+                setListBlockOrganization(r.data.blockOrganizations)
+                setListUnitOrganization(r.data.unitOrganizations)
+                setListLecturers(r.data.lecturers)
+                setLecturerExpense(r.data.lecturerExpense)
+                setLogisticsExpense(r.data.logisticsExpense)
+                setLunchExpense(r.data.lunchExpense)
+                setTotalExpense(r.data.totalExpense)
+                setAllStudentsObject((allTraining.find(item => item.id === r.data.training.id)).studentObjects)
+                setAllLecturersObject((allTraining.find(item => item.id === r.data.training.id)).lecturerObjects)
+                setListLecturersObject(r.data.lecturerObjects)
+                setListStudentsObject(r.data.studentObjects)
+                let arr = convertArr(r.data.students, listResult)
+                setListResult({...listResult, rows: arr, total: r.data.students.length});
+            }).catch(e => {
+            })
+            setIdUpdate(location.get('id'));
+        }
+    },[allTraining])
+    useEffect(() => {
+        const listLecturerObjectIds = listLecturersObject.map(item => item.id);
+        setAllLecturers(allLecturersDefine.filter(item => listLecturerObjectIds.includes(item.lecturerObject.id)))
+    },[listLecturersObject])
+    useEffect(() => {
+        getAllLecturerApi().then(r => {
+            setAllLecturersDefine(r.data)
         })
         getCategoryApi({
             paging: false,
@@ -98,21 +160,6 @@ export default function CreateUpdateTrainingClass(props) {
         }).then(r => {
             if (r.data.responses != null) setOrganizationLocation(r.data.responses)
         })
-        if (location.get('id')) {
-            getDetailApi(location.get('id')).then(r => {
-                setInfo(r.data)
-                setListBlockOrganization(r.data.blockOrganizations)
-                setListUnitOrganization(r.data.unitOrganizations)
-                setListLecturers(r.data.lecturers)
-                setlecturerExpense(r.data.lecturerExpense)
-                setLogisticsExpense(r.data.logisticsExpense)
-                setLunchExpense(r.data.lunchExpense)
-                let arr = convertArr(r.data.students, listResult)
-                setListResult({...listResult, rows: arr, total: r.data.students.length});
-            }).catch(e => {
-            })
-            setIdUpdate(location.get('id'));
-        }
     }, [])
 
 //=====================================================================================================
@@ -125,10 +172,11 @@ export default function CreateUpdateTrainingClass(props) {
             trainingId: values.trainingId ?? '',
             lecturerIds: listLecturers.map(item => item.id) ?? '',
             organizationLocationId: values.organizationLocationId ?? '',
+            lecturerObjectIds: listLecturersObject.map(item => item.id) ?? '',
+            studentObjectIds: listStudentsObject.map(item => item.id) ?? '',
             studentIds: listResult.rows.map(item => item.id) ?? '',
             notes: values.notes ?? '',
         }
-        console.log(data);
         if (!isUpdate) {
             createTrainingClassApi(data).then(r => {
                 toast.success('Thêm lớp đào tạo thành công', Utils.options);
@@ -166,6 +214,12 @@ export default function CreateUpdateTrainingClass(props) {
         setListResult({...listResult, rows: data, total: data.length});
         //setListStudents(data);
     }
+    const handleClickNotification = (event) => {
+        setAnchorElSettingTable(event.currentTarget);
+    };
+    const handleCloseNotification = () => {
+        setAnchorElSettingTable(null);
+    };
 //=====================================================================================================
     const back = () => {
         navigate('/training-class')
@@ -192,6 +246,9 @@ export default function CreateUpdateTrainingClass(props) {
     const getAllTrainingApi = () => {
         return apiTraining.getAllTraining();
     }
+    const getConfigTableApi = (tableName) => {
+        return apiTableConfig.get(tableName)
+    }
 //=====================================================================================================
     return (
         <div className={'main-content'}>
@@ -214,10 +271,13 @@ export default function CreateUpdateTrainingClass(props) {
                         trainingId: idUpdate ? info.training.id : '',
                         lecturers: idUpdate ? info.lecturers : '',
                         organizationLocationId: idUpdate ? info.organizationLocation.id : '',
+                        lecturerObjects: idUpdate ? info.lecturerObjects : '',
+                        studentObjects: idUpdate ? info.studentObjects : '',
                         students: idUpdate ? info.students : '',
                         lecturerExpense: idUpdate ? info.lecturerExpense : '',
                         logisticsExpense: idUpdate ? info.logisticsExpense : '',
                         lunchExpense: idUpdate ? info.lunchExpense : '',
+                        totalExpense: idUpdate ? info.totalExpense : '',
                         notes: idUpdate ? info.notes : '',
                     }}
                     onSubmit={
@@ -303,14 +363,16 @@ export default function CreateUpdateTrainingClass(props) {
                                                     onChange={(event) => {
                                                         setFieldValue('trainingId', event.target.value);
                                                         //setListBlockOrganization(training.find(entry => entry.id === event.target.value).blockOrganizations);
-                                                        console.log(allTraining)
                                                         const item = allTraining.find(entry => entry.id === event.target.value);
                                                         if (item) {
                                                             setListOrganization([
                                                                 ...item.blockOrganizations,
                                                                 ...item.unitOrganizations
                                                             ]);
+                                                            setAllStudentsObject(item.studentObjects)
+                                                            setAllLecturersObject(item.lecturerObjects)
                                                         }
+
                                                         //setListOrganization([...item.blockOrganizations, ...item.unitOrganizations])
                                                     }}
                                                     size={"small"}>
@@ -455,6 +517,76 @@ export default function CreateUpdateTrainingClass(props) {
                                                     value={listUnitOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
                                                         setListUnitOrganization(deleteAllIdSame(values))
+                                                    }}
+                                                    renderInput={(params) => <TextField
+                                                        className={'multi-select-search-text'} {...params} />}
+                                                />
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Đối tượng giảng viên<span
+                                                className={'error-message'}>*</span></div>
+                                            <FormControl fullWidth>
+                                                <Autocomplete
+                                                    size={"small"}
+                                                    multiple
+                                                    id="checkboxes-tags-demo"
+                                                    className={'multi-select-search'}
+                                                    options={allLecturersObject}
+                                                    disableCloseOnSelect
+                                                    getOptionLabel={(option) => option.name}
+                                                    renderOption={(props, option, {selected}) => {
+                                                        const {key, ...optionProps} = props;
+                                                        return (
+                                                            <li key={key} {...optionProps}>
+                                                                <Checkbox
+                                                                    icon={icon}
+                                                                    checkedIcon={checkedIcon}
+                                                                    style={{marginRight: 8}}
+                                                                    checked={listLecturersObject.filter(item => item.id === option.id).length > 0}
+                                                                />
+                                                                {option.name}
+                                                            </li>
+                                                        );
+                                                    }}
+                                                    value={listLecturersObject}
+                                                    onChange={(event, values, changeReason, changeDetails) => {
+                                                        setListLecturersObject(deleteAllIdSame(values))
+                                                    }}
+                                                    renderInput={(params) => <TextField
+                                                        className={'multi-select-search-text'} {...params} />}
+                                                />
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Đối tượng học viên<span
+                                                className={'error-message'}>*</span></div>
+                                            <FormControl fullWidth>
+                                                <Autocomplete
+                                                    size={"small"}
+                                                    multiple
+                                                    id="checkboxes-tags-demo"
+                                                    className={'multi-select-search'}
+                                                    options={allStudentsObject}
+                                                    disableCloseOnSelect
+                                                    getOptionLabel={(option) => option.name}
+                                                    renderOption={(props, option, {selected}) => {
+                                                        const {key, ...optionProps} = props;
+                                                        return (
+                                                            <li key={key} {...optionProps}>
+                                                                <Checkbox
+                                                                    icon={icon}
+                                                                    checkedIcon={checkedIcon}
+                                                                    style={{marginRight: 8}}
+                                                                    checked={listStudentsObject.filter(item => item.id === option.id).length > 0}
+                                                                />
+                                                                {option.name}
+                                                            </li>
+                                                        );
+                                                    }}
+                                                    value={listStudentsObject}
+                                                    onChange={(event, values, changeReason, changeDetails) => {
+                                                        setListStudentsObject(deleteAllIdSame(values))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -626,6 +758,30 @@ export default function CreateUpdateTrainingClass(props) {
                                                         </Grid>
                                                         : ''
                                                 }
+                                                {
+                                                    totalExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Tổng chi phí</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='totalExpense'
+                                                                name='totalExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.totalExpense}
+                                                                customInput={TextField}
+                                                                error={touched.totalExpense && Boolean(errors.totalExpense)}
+                                                                helperText={touched.totalExpense && errors.totalExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
                                                 <Grid item xs={6} md={12}>
                                                     <Divider/>
                                                 </Grid>
@@ -636,16 +792,37 @@ export default function CreateUpdateTrainingClass(props) {
                                         <div className={'label-group-input'}>
                                             <div>Danh sách học viên</div>
                                         </div>
-                                        <Button onClick={() => {
-                                            setOpenModalEdit(true)
-                                        }} className={'button-header'} variant="contained" type='button'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
-                                                 viewBox="0 0 30 30" fill="none">
-                                                <path
-                                                    d="M21.25 3.75H6.25C4.8625 3.75 3.75 4.875 3.75 6.25V23.75C3.75 25.125 4.8625 26.25 6.25 26.25H23.75C25.125 26.25 26.25 25.125 26.25 23.75V8.75L21.25 3.75ZM23.75 23.75H6.25V6.25H20.2125L23.75 9.7875V23.75ZM15 15C12.925 15 11.25 16.675 11.25 18.75C11.25 20.825 12.925 22.5 15 22.5C17.075 22.5 18.75 20.825 18.75 18.75C18.75 16.675 17.075 15 15 15ZM7.5 7.5H18.75V12.5H7.5V7.5Z"
-                                                    fill="#1F2251"/>
-                                            </svg>
-                                            Thêm học viên</Button>
+                                        <div className={'flexGroup2'}>
+                                            <Tooltip className={'icon-config-table'} title={"Cài đặt hiển thị"}>
+                                                <SettingsIcon onClick={handleClickNotification}/>
+                                            </Tooltip>
+                                            <Menu
+                                                id="icon-notification"
+                                                anchorEl={anchorElSettingTable}
+                                                open={openSettingTable}
+                                                onClose={handleCloseNotification}
+                                                MenuListProps={{
+                                                    'aria-labelledby': 'basic-button',
+                                                }}>
+                                                <SettingColumnTable columns={columns}
+                                                                    nameTable={getNameToId(tableName,6)}
+                                                                    isRefreshConfigTable={isRefreshConfigTable}
+                                                                    setIsRefreshConfigTable={setIsRefreshConfigTable}
+                                                >
+                                                </SettingColumnTable>
+                                            </Menu>
+                                            <Button onClick={() => {
+                                                setOpenModalEdit(true)
+                                            }} className={'button-header ml15'} variant="contained" type='button'>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                                     viewBox="0 0 30 30" fill="none">
+                                                    <path
+                                                        d="M21.25 3.75H6.25C4.8625 3.75 3.75 4.875 3.75 6.25V23.75C3.75 25.125 4.8625 26.25 6.25 26.25H23.75C25.125 26.25 26.25 25.125 26.25 23.75V8.75L21.25 3.75ZM23.75 23.75H6.25V6.25H20.2125L23.75 9.7875V23.75ZM15 15C12.925 15 11.25 16.675 11.25 18.75C11.25 20.825 12.925 22.5 15 22.5C17.075 22.5 18.75 20.825 18.75 18.75C18.75 16.675 17.075 15 15 15ZM7.5 7.5H18.75V12.5H7.5V7.5Z"
+                                                        fill="#1F2251"/>
+                                                </svg>
+                                                Thêm học viên</Button>
+                                        </div>
+
                                     </div>
                                     <div className={'main-content-body-result mt10'}>
                                         <TableContainer className={'table-est'} sx={{maxHeight: 440}}>
@@ -662,24 +839,13 @@ export default function CreateUpdateTrainingClass(props) {
                                                             <TableRow>
                                                                 <TableCell style={{minWidth: 70}}
                                                                            align="center">STT</TableCell>
-                                                                <TableCell style={{minWidth: 150}}>Họ và
-                                                                    tên</TableCell>
-                                                                <TableCell style={{minWidth: 150}}>Năm
-                                                                    sinh</TableCell>
-                                                                <TableCell style={{minWidth: 80}}>Giới
-                                                                    tính</TableCell>
-                                                                <TableCell style={{minWidth: 150}}>Chức
-                                                                    danh</TableCell>
-                                                                <TableCell style={{minWidth: 250}}>Khối</TableCell>
-                                                                <TableCell style={{minWidth: 250}}>Đơn
-                                                                    vị</TableCell>
-                                                                <TableCell style={{minWidth: 250}}>Phòng
-                                                                    ban</TableCell>
-                                                                <TableCell style={{minWidth: 150}}>Số điện
-                                                                    thoại</TableCell>
-                                                                <TableCell style={{minWidth: 150}}>Email</TableCell>
-                                                                <TableCell style={{minWidth: 250}}>Ghi
-                                                                    chú</TableCell>
+                                                                {columns.map((column, columnIndex) => {
+                                                                    if (column.visible) {
+                                                                        return <TableCell style={{minWidth: 200}}>{column.name}</TableCell>
+                                                                    }
+                                                                })}
+                                                                <TableCell style={{minWidth: 120}}
+                                                                           align="center">Chi phí</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody className={'super-app-theme--body'}>
@@ -698,26 +864,59 @@ export default function CreateUpdateTrainingClass(props) {
                                                                     <TableRow hover role="checkbox" tabIndex={-1}>
                                                                         <TableCell rowSpan={1}
                                                                                    align="center">{(item.stt)}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.name}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{getDateTimeFromTimestamp(item.dateOfBirth)}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{getNameToId(sexData, item.sex)}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.jobTitle}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.blockOrganization.name}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.unitOrganization.name}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.departmentOrganization.name}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.phone}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.email}</TableCell>
-                                                                        <TableCell
-                                                                            rowSpan={1}>{item.notes}</TableCell>
+                                                                        {columns.map((column, columnIndex) => {
+                                                                            if (column.visible) {
+                                                                                if (column.code === 'lecturers' || column.code === 'lecturerObjects' || column.code === 'studentObjects') {
+                                                                                    return (
+                                                                                        <TableCell key={columnIndex} rowSpan={1}>
+                                                                                            {item[column.code].map((cc, index) => (
+                                                                                                <p key={index}>{cc.name}</p>
+                                                                                            ))}
+                                                                                        </TableCell>
+                                                                                    );
+                                                                                } else if (column.code === 'blockOrganization' ||
+                                                                                    column.code === 'unitOrganization' ||
+                                                                                    column.code === 'trainingType' ||
+                                                                                    column.code === 'plan' ||
+                                                                                    column.code === 'formTraining' ||
+                                                                                    column.code === 'organizationLocation') {
+                                                                                    return (
+                                                                                        <TableCell key={columnIndex} rowSpan={1}>
+                                                                                            {item[column.code].name}
+                                                                                        </TableCell>
+                                                                                    );
+                                                                                }else if (column.code === 'expensePerLecturer' ||
+                                                                                    column.code === 'expenseAllLecturer' ||
+                                                                                    column.code === 'logisticsExpense' ||
+                                                                                    column.code === 'lunchExpense' ||
+                                                                                    column.code === 'totalExpense') {
+                                                                                    return (
+                                                                                        <TableCell key={columnIndex} rowSpan={1}>
+                                                                                            {formatVND(item[column.code])}
+                                                                                        </TableCell>
+                                                                                    );
+                                                                                } else if (column.code === 'startDate' || column.code === 'endDate' || column.code === 'dateOfBirth') {
+                                                                                    return (
+                                                                                        <TableCell key={columnIndex} rowSpan={1}>
+                                                                                            {getDateTimeFromTimestamp(item[column.code])}
+                                                                                        </TableCell>
+                                                                                    );
+                                                                                } else if (column.code === 'planTime') {
+                                                                                    return (
+                                                                                        <TableCell rowSpan={1}>{new Date(item[column.code]).getFullYear()}</TableCell>
+                                                                                    );
+                                                                                }else {
+                                                                                    return (
+                                                                                        <TableCell key={columnIndex} rowSpan={1}>
+                                                                                            {item[column.code]}
+                                                                                        </TableCell>
+                                                                                    );
+                                                                                }
+                                                                            }
+                                                                            return "";
+                                                                        })}
+                                                                        <TableCell rowSpan={1}
+                                                                                   align="center">{formatVND(totalExpense/parseInt(listResult.rows.length))}</TableCell>
                                                                     </TableRow>
                                                                 </>
                                                             ))}

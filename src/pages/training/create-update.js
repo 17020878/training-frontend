@@ -55,7 +55,7 @@ export default function CreateUpdateTraining(props) {
     const [expenseAllLecturer, setExpenseAllLecturer] = useState('')
     const [logisticsExpense, setLogisticsExpense] = useState('')
     const [lunchExpense, setLunchExpense] = useState('')
-    const [total, setTotal] = useState('')
+    const [totalExpense, setTotalExpense] = useState('')
     const [info, setInfo] = useState({
         plan: '',
         blockOrganizations: '',
@@ -78,7 +78,7 @@ export default function CreateUpdateTraining(props) {
         lecturerExpense: '',
         logisticsExpense: '',
         lunchExpense: '',
-        //totalExpense: '',
+        totalExpense: '',
         startDate: '',
         endDate: '',
         notes: '',
@@ -134,6 +134,7 @@ export default function CreateUpdateTraining(props) {
                 setlecturerExpense(r.data.lecturerExpense)
                 setLogisticsExpense(r.data.logisticsExpense)
                 setLunchExpense(r.data.lunchExpense)
+                setTotalExpense(r.data.totalExpense)
             }).catch(e => {
             })
             setIdUpdate(location.get('id'));
@@ -254,7 +255,7 @@ export default function CreateUpdateTraining(props) {
                         //expenseAllLecturer: idUpdate ? info.expenseAllLecturer : '',
                         logisticsExpense: idUpdate ? info.logisticsExpense : '',
                         lunchExpense: idUpdate ? info.lunchExpense : '',
-                        //totalExpense: idUpdate ? info.totalExpense : '',
+                        totalExpense: idUpdate ? info.totalExpense : '',
                         startDate: idUpdate ? info.startDate : '',
                         endDate: idUpdate ? info.endDate : '',
                         notes: idUpdate ? info.notes : '',
@@ -837,6 +838,30 @@ export default function CreateUpdateTraining(props) {
                                                                 customInput={TextField}
                                                                 error={touched.lunchExpense && Boolean(errors.lunchExpense)}
                                                                 helperText={touched.lunchExpense && errors.lunchExpense}
+                                                                InputProps={{
+                                                                    endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+
+                                                                }}
+                                                                thousandSeparator={"."}
+                                                                decimalSeparator={","}
+                                                            />
+                                                        </Grid>
+                                                        : ''
+                                                }
+                                                {
+                                                    totalExpense
+                                                        ? <Grid item xs={6} md={3}>
+                                                            <div className={'label-input'}>Tổng chi phí</div>
+                                                            <NumericFormat
+                                                                disabled
+                                                                id='totalExpense'
+                                                                name='totalExpense'
+                                                                className={'formik-input text-right'}
+                                                                size={"small"}
+                                                                value={values.totalExpense}
+                                                                customInput={TextField}
+                                                                error={touched.totalExpense && Boolean(errors.totalExpense)}
+                                                                helperText={touched.totalExpense && errors.totalExpense}
                                                                 InputProps={{
                                                                     endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
 
