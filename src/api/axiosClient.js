@@ -1,7 +1,9 @@
 import axios from 'axios';
 import queryString from 'query-string';
 import API_MAP from "../constants/api";
+import { toast, ToastContainer } from "react-toastify";
 import {clearToken} from "../constants/common";
+import Utils from "../constants/utils";
 // Set up default config for http requests here
 // Please have a look at here `https://github.com/axios/axios#request- config` for the full list of configs
 const axiosClient = axios.create({
@@ -37,7 +39,6 @@ axiosClient.interceptors.response.use((response) => {
     return response;
 
 }, (error) => {
-
     let url = new URL(window.location.href);
     let paramDomain = url.searchParams.get("domain")
     if (error.response) {
@@ -46,6 +47,8 @@ axiosClient.interceptors.response.use((response) => {
                 clearToken()
                 window.location.href = "/login"
                 break
+            case 422:
+                toast.error('Không thể xóa do có ràng buộc dữ liệu', Utils.options);
         }
     }
     throw error;

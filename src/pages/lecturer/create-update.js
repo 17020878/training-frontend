@@ -78,7 +78,7 @@ export default function CreateUpdateLecturer(props) {
             "lecturerObjectId": values.lecturerObjectId ?? '',
             "workPlace": values.workPlace ?? '',
             "experience": values.experience ?? '',
-            "note": values.note ?? '',
+            "code": values.code ?? '',
             "description": values.description ?? '',
         }
         console.log(data)

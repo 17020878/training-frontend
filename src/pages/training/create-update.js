@@ -37,6 +37,7 @@ export default function CreateUpdateTraining(props) {
     const navigate = useNavigate();
     const {isUpdate} = props
     const [idUpdate, setIdUpdate] = useState(null)
+    const [allLecturersDefine, setAllLecturersDefine] = useState([]);
     const [allLecturers, setAllLecturers] = useState([]);
     const [listLecturers, setListLecturers] = useState([]);
     const [listStudentsObject, setListStudentsObject] = useState([]);
@@ -92,8 +93,12 @@ export default function CreateUpdateTraining(props) {
         })
     }, [])
     useEffect(() => {
+        const listLecturerObjectIds = listLecturersObject.map(item => item.id);
+        setAllLecturers(allLecturersDefine.filter(item => listLecturerObjectIds.includes(item.lecturerObject.id)))
+    },[allLecturersDefine,listLecturersObject])
+    useEffect(() => {
         getAllLecturerApi().then(r => {
-            setAllLecturers(r.data)
+            setAllLecturersDefine(r.data)
         })
         getAllPlanApi().then(r => {
             setPlan(r.data)
@@ -564,41 +569,6 @@ export default function CreateUpdateTraining(props) {
                                             />
                                         </Grid>
                                         <Grid item xs={4} md={3}>
-                                            <div className={'label-input'}>Danh sách giảng viên<span
-                                                className={'error-message'}>*</span></div>
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    size={"small"}
-                                                    multiple
-                                                    id="checkboxes-tags-demo"
-                                                    className={'multi-select-search'}
-                                                    options={allLecturers}
-                                                    disableCloseOnSelect
-                                                    getOptionLabel={(option) => option.name}
-                                                    renderOption={(props, option, {selected}) => {
-                                                        const {key, ...optionProps} = props;
-                                                        return (
-                                                            <li key={key} {...optionProps}>
-                                                                <Checkbox
-                                                                    icon={icon}
-                                                                    checkedIcon={checkedIcon}
-                                                                    style={{marginRight: 8}}
-                                                                    checked={listLecturers.filter(item => item.id === option.id).length > 0}
-                                                                />
-                                                                {option.name}
-                                                            </li>
-                                                        );
-                                                    }}
-                                                    value={listLecturers}
-                                                    onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListLecturers(deleteAllIdSame(values))
-                                                    }}
-                                                    renderInput={(params) => <TextField
-                                                        className={'multi-select-search-text'} {...params} />}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={4} md={3}>
                                             <div className={'label-input'}>Đối tượng giảng viên<span
                                                 className={'error-message'}>*</span></div>
                                             <FormControl fullWidth>
@@ -627,6 +597,7 @@ export default function CreateUpdateTraining(props) {
                                                     value={listLecturersObject}
                                                     onChange={(event, values, changeReason, changeDetails) => {
                                                         setListLecturersObject(deleteAllIdSame(values))
+                                                        setListLecturers([])
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -761,6 +732,41 @@ export default function CreateUpdateTraining(props) {
                                                         size={"small"}  {...params} />}
                                                 />
                                             </LocalizationProvider>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Danh sách giảng viên<span
+                                                className={'error-message'}>*</span></div>
+                                            <FormControl fullWidth>
+                                                <Autocomplete
+                                                    size={"small"}
+                                                    multiple
+                                                    id="checkboxes-tags-demo"
+                                                    className={'multi-select-search'}
+                                                    options={allLecturers}
+                                                    disableCloseOnSelect
+                                                    getOptionLabel={(option) => option.name}
+                                                    renderOption={(props, option, {selected}) => {
+                                                        const {key, ...optionProps} = props;
+                                                        return (
+                                                            <li key={key} {...optionProps}>
+                                                                <Checkbox
+                                                                    icon={icon}
+                                                                    checkedIcon={checkedIcon}
+                                                                    style={{marginRight: 8}}
+                                                                    checked={listLecturers.filter(item => item.id === option.id).length > 0}
+                                                                />
+                                                                {option.name}
+                                                            </li>
+                                                        );
+                                                    }}
+                                                    value={listLecturers}
+                                                    onChange={(event, values, changeReason, changeDetails) => {
+                                                        setListLecturers(deleteAllIdSame(values))
+                                                    }}
+                                                    renderInput={(params) => <TextField
+                                                        className={'multi-select-search-text'} {...params} />}
+                                                />
+                                            </FormControl>
                                         </Grid>
                                         <Grid item xs={6} md={12}>
                                             <Divider/>

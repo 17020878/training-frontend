@@ -72,6 +72,7 @@ export default function CreateUpdateTrainingClass(props) {
     const [openModalEdit, setOpenModalEdit] = useState(false)
     const [lecturerExpense, setLecturerExpense] = useState('')
     const [logisticsExpense, setLogisticsExpense] = useState('')
+    const [trainingId, setTrainingId] = useState(null)
     const [lunchExpense, setLunchExpense] = useState('')
     const [totalExpense, setTotalExpense] = useState('')
     const [anchorElSettingTable, setAnchorElSettingTable] = useState(null);
@@ -137,6 +138,7 @@ export default function CreateUpdateTrainingClass(props) {
                 setTotalExpense(r.data.totalExpense)
                 setAllStudentsObject((allTraining.find(item => item.id === r.data.training.id)).studentObjects)
                 setAllLecturersObject((allTraining.find(item => item.id === r.data.training.id)).lecturerObjects)
+                //setAllLecturersDefine((allTraining.find(item => item.id === r.data.training.id)).lecturers)
                 setListLecturersObject(r.data.lecturerObjects)
                 setListStudentsObject(r.data.studentObjects)
                 let arr = convertArr(r.data.students, listResult)
@@ -145,15 +147,25 @@ export default function CreateUpdateTrainingClass(props) {
             })
             setIdUpdate(location.get('id'));
         }
+
     },[allTraining])
     useEffect(() => {
-        const listLecturerObjectIds = listLecturersObject.map(item => item.id);
-        setAllLecturers(allLecturersDefine.filter(item => listLecturerObjectIds.includes(item.lecturerObject.id)))
+        if(trainingId){
+            getAllLecturerApi().then(r => {
+                setAllLecturersDefine(((allTraining.find(item => item.id === trainingId)).lecturers).map(sub => {
+                    return r.data.find(individual => individual.id === sub.id);
+                }))
+            })
+        }
+
+    },[trainingId])
+    useEffect(() => {
+        const listLecturerObjectIds = listLecturersObject.map(item => item.id); //ids đối tượng gv
+        console.log(listLecturerObjectIds)
+        console.log(allLecturersDefine)
+        setAllLecturers(allLecturersDefine.filter(item => listLecturerObjectIds.includes(item.lecturerObject.id))) //set all giảng viên
     },[listLecturersObject])
     useEffect(() => {
-        getAllLecturerApi().then(r => {
-            setAllLecturersDefine(r.data)
-        })
         getCategoryApi({
             paging: false,
             type: "OrganizationLocation"
@@ -371,6 +383,10 @@ export default function CreateUpdateTrainingClass(props) {
                                                             ]);
                                                             setAllStudentsObject(item.studentObjects)
                                                             setAllLecturersObject(item.lecturerObjects)
+                                                            setTrainingId(event.target.value)
+                                                            setListLecturersObject([])
+                                                            setListStudentsObject([])
+                                                            setListLecturers([])
                                                         }
 
                                                         //setListOrganization([...item.blockOrganizations, ...item.unitOrganizations])
@@ -552,6 +568,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                     value={listLecturersObject}
                                                     onChange={(event, values, changeReason, changeDetails) => {
                                                         setListLecturersObject(deleteAllIdSame(values))
+                                                        setListLecturers([])
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -594,6 +611,25 @@ export default function CreateUpdateTrainingClass(props) {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Địa điểm đào tạo<span
+                                                className={'error-message'}>*</span></div>
+                                            <FormControl fullWidth>
+                                                <Select
+                                                    labelId="is_infinite_label"
+                                                    id='organizationLocationId'
+                                                    name='organizationLocationId'
+                                                    value={values.organizationLocationId}
+                                                    onChange={handleChange}
+                                                    size={"small"}>
+                                                    {organizationLocation.map((item) =>
+                                                        <MenuItem value={item.id}>{item.name}</MenuItem>
+                                                    )}
+                                                </Select>
+                                                <FormHelperText
+                                                    className={'error-message'}>{errors.organizationLocationId}</FormHelperText>
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
                                             <div className={'label-input'}>Danh sách giảng viên<span
                                                 className={'error-message'}>*</span></div>
                                             <FormControl fullWidth>
@@ -626,25 +662,6 @@ export default function CreateUpdateTrainingClass(props) {
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
                                                 />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={4} md={3}>
-                                            <div className={'label-input'}>Địa điểm đào tạo<span
-                                                className={'error-message'}>*</span></div>
-                                            <FormControl fullWidth>
-                                                <Select
-                                                    labelId="is_infinite_label"
-                                                    id='organizationLocationId'
-                                                    name='organizationLocationId'
-                                                    value={values.organizationLocationId}
-                                                    onChange={handleChange}
-                                                    size={"small"}>
-                                                    {organizationLocation.map((item) =>
-                                                        <MenuItem value={item.id}>{item.name}</MenuItem>
-                                                    )}
-                                                </Select>
-                                                <FormHelperText
-                                                    className={'error-message'}>{errors.organizationLocationId}</FormHelperText>
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={4} md={3}>
