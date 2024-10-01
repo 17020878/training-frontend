@@ -96,10 +96,10 @@ export default function ManageTrainingClass() {
         } else {
             setIsInitialRenderOrganization(false);
         }
-        dispatch(updateAdvanceSearch({type: "organization", data: selectedNodeKey}))
+        //dispatch(updateAdvanceSearch({type: "organization", data: selectedNodeKey}))
     }, [selectedNodeKey, inputSearch])
     useEffect(() => {
-        dispatch(updateAdvanceSearch({type: "organizationExpanded", data: expandedKeys}))
+        //dispatch(updateAdvanceSearch({type: "organizationExpanded", data: expandedKeys}))
     }, [expandedKeys])
     const submitSearchDefault = () => {
         let children = [];

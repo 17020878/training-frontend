@@ -35,7 +35,7 @@ import ModalAddStudent from "./ModalAddStudent";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
 
 const ModalListStudent = (props) => {
-    const {openModalEdit, handleCloseModalEdit, handleUpdateListStudent, listStudentsParent,listOrganizations} = props;
+    const {openModalEdit, handleCloseModalEdit, handleUpdateListStudent, listStudentsParent,listOrganizations,studentObjects,listUnitOrganizations} = props;
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const currentUser = useSelector(state => state.currentUser)
@@ -43,6 +43,8 @@ const ModalListStudent = (props) => {
     const [refresh, setRefresh] = useState(false)
     const [page, setPage] = React.useState(0);
     const [listStudents, setListStudents] = React.useState([]);
+    const [listUnitOrganization, setListUnitOrganization] = React.useState([]);
+    const [studentObject, setStudentObject] = React.useState([]);
     const [openModalDel, setOpenModalDel] = useState(false)
     const [studentId, setStudentId] = React.useState('');
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -61,10 +63,12 @@ const ModalListStudent = (props) => {
     const [expandedKeys, setExpandedKeys] = useState(currentUser.advanceSearch.organizationExpanded);
     const [isInitialRenderOrganization, setIsInitialRenderOrganization] = useState(false);
 //=====================================================================================================
-    console.log(listOrganizations)
     useEffect(() => {
-        setListStudents(listStudentsParent)
-    },[listStudentsParent])
+        setStudentObject(studentObjects)
+    },[studentObjects])
+    useEffect(() => {
+        setListUnitOrganization(listUnitOrganizations)
+    },[listUnitOrganizations])
     useEffect(() => {
         setListOrganization(listOrganizations)
         let convert = buildTreeAsset(buildInputTree(listOrganizations))
@@ -77,18 +81,21 @@ const ModalListStudent = (props) => {
     //         setListOrganizationTree(convert)
     //     })
     // },[])
+    console.log(selectedNodeKey)
     useEffect(() => {
-        if (!isInitialRenderOrganization) {
-            if (selectedNodeKey != null) {
-                submitSearchDefault()
+        if(openModalEdit){
+            if (!isInitialRenderOrganization) {
+                if (selectedNodeKey != null) {
+                    submitSearchDefault()
+                }
+            } else {
+                setIsInitialRenderOrganization(false);
             }
-        } else {
-            setIsInitialRenderOrganization(false);
         }
-        dispatch(updateAdvanceSearch({type: "organization", data: selectedNodeKey}))
-    }, [selectedNodeKey, inputSearch])
+        //dispatch(updateAdvanceSearch({type: "organization", data: selectedNodeKey}))
+    }, [selectedNodeKey, inputSearch,openModalEdit])
     useEffect(() => {
-        dispatch(updateAdvanceSearch({type: "organizationExpanded", data: expandedKeys}))
+        //dispatch(updateAdvanceSearch({type: "organizationExpanded", data: expandedKeys}))
     }, [expandedKeys])
     const submitSearchDefault = () => {
         searchStudentApi({
@@ -101,7 +108,10 @@ const ModalListStudent = (props) => {
             setLoading(false)
             let arr;
             arr = convertArr(r.data.content, listResult)
-            setListResult({...listResult, rows: (arr), total: r.data.totalElements});
+            setListResult({...listResult, rows: (arr.filter(employee =>
+                    studentObject.some(student => student.id === employee.studentObject.id)  &&
+                    listUnitOrganization.some(unit => unit.id === employee.unitOrganization.id)
+                )), total: r.data.totalElements});
         })
         for (let i = 0; i < listOrganization.length; i++) {
             if (selectedNodeKey == listOrganization[i].id) {
@@ -184,6 +194,7 @@ const ModalListStudent = (props) => {
         return apiOrganization.getOrganization()
     }
     const searchStudentApi = (data) => {
+        console.log(data)
         return apiStudent.searchStudent(data);
     }
     const deleteStudentApi = (data) => {

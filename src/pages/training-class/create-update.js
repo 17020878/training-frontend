@@ -161,8 +161,6 @@ export default function CreateUpdateTrainingClass(props) {
     },[trainingId])
     useEffect(() => {
         const listLecturerObjectIds = listLecturersObject.map(item => item.id); //ids đối tượng gv
-        console.log(listLecturerObjectIds)
-        console.log(allLecturersDefine)
         setAllLecturers(allLecturersDefine.filter(item => listLecturerObjectIds.includes(item.lecturerObject.id))) //set all giảng viên
     },[listLecturersObject])
     useEffect(() => {
@@ -173,7 +171,6 @@ export default function CreateUpdateTrainingClass(props) {
             if (r.data.responses != null) setOrganizationLocation(r.data.responses)
         })
     }, [])
-
 //=====================================================================================================
     function onSubmitFunction(values) {
         let data = {
@@ -265,10 +262,12 @@ export default function CreateUpdateTrainingClass(props) {
     return (
         <div className={'main-content'}>
             <ModalListStudent
-                listOrganizations={listOrganization}
+                listOrganizations={[...listBlockOrganization, ...listUnitOrganization, {"id": 0, "name": "TOÀN HỆ THỐNG"}]}
                 listStudentsParent={listResult.rows}
                 handleUpdateListStudent={handleUpdateListStudent}
                 openModalEdit={openModalEdit}
+                studentObjects={listStudentsObject}
+                listUnitOrganizations={listUnitOrganization}
                 handleCloseModalEdit={handleCloseModalEdit}>
             </ModalListStudent>
             <div className={'main-content-body'}>
@@ -496,6 +495,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                     value={listBlockOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
                                                         setListBlockOrganization(deleteAllIdSame(values))
+                                                        setListUnitOrganization([])
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -830,7 +830,7 @@ export default function CreateUpdateTrainingClass(props) {
                                             </Menu>
                                             <Button onClick={() => {
                                                 setOpenModalEdit(true)
-                                            }} className={'button-header ml15'} variant="contained" type='button'>
+                                            }} className={`${(listUnitOrganization.length === 0 || listStudentsObject.length === 0) ? 'button-disabled' : ''} button-header ml15`} variant="contained" type='button'>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                                      viewBox="0 0 30 30" fill="none">
                                                     <path
@@ -870,8 +870,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                                 ? <div className={'message-table-empty-loading'}>
                                                                     <CircularProgress size={30}></CircularProgress>
                                                                     <div className={'message-table-empty-sof'}>Không
-                                                                        có dữ
-                                                                        liệu
+                                                                        có dữ liệu
                                                                     </div>
                                                                 </div>
                                                                 : ''

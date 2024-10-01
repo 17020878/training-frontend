@@ -51,7 +51,7 @@ export default function CreateUpdateStudent(props) {
         phone: '',
         email: '',
         notes: '',
-        setStudentObject: ''
+        studentObject: ''
     })
 //=====================================================================================================
     useEffect(() => {
@@ -71,15 +71,15 @@ export default function CreateUpdateStudent(props) {
         if (location.get('id')) {
             setIdUpdate(location.get('id'));
         }
-        if (isUpdate && idUpdate) {
-            getDetailApi(idUpdate).then(r => {
+        if (location.get('id')) {
+            getDetailApi(location.get('id')).then(r => {
                 setInfo(r.data)
                 setSex(r.data.sex);
-            }).catch(e => {
-            })
+            }).catch(e => {})
         }
-
     }, [location, idUpdate])
+    console.log(info)
+
 //=====================================================================================================
     const handleChangeSex = e => {
         setSex(e.target.value);
@@ -282,17 +282,25 @@ export default function CreateUpdateStudent(props) {
                                                         setFieldValue('blockOrganizationId', newValue.id)
                                                         setFieldValue('blockOrganizationName', newValue.label)
                                                         setBlockOrganizationId(newValue.id);
-                                                    } else {
-                                                        setFieldValue('blockOrganizationId', '')
-                                                        setFieldValue('blockOrganizationName', '')
-                                                        setFieldValue('unitOrganizationId', '')
-                                                        setFieldValue('unitOrganizationName', '')
-                                                        setFieldValue('departmentOrganizationId', '')
-                                                        setFieldValue('departmentOrganizationName','')
-                                                        setBlockOrganizationId('');
-                                                        setUnitOrganizationId('')
-                                                        setDepartmentOrganizationId('')
                                                     }
+                                                    setFieldValue('unitOrganizationId', '')
+                                                    setFieldValue('unitOrganizationName', '')
+                                                    setFieldValue('departmentOrganizationId', '')
+                                                    setFieldValue('departmentOrganizationName','')
+                                                    setUnitOrganizationId('')
+                                                    setDepartmentOrganizationId('')
+                                                    // else {
+                                                    //     setFieldValue('blockOrganizationId', '')
+                                                    //     setFieldValue('blockOrganizationName', '')
+                                                    //     setFieldValue('unitOrganizationId', '')
+                                                    //     setFieldValue('unitOrganizationName', '')
+                                                    //     setFieldValue('departmentOrganizationId', '')
+                                                    //     setFieldValue('departmentOrganizationName','')
+                                                    //     setBlockOrganizationId('');
+                                                    //     setUnitOrganizationId('')
+                                                    //     setDepartmentOrganizationId('')
+                                                    // }
+
                                                 }}
                                             />
                                         </Grid>
@@ -319,15 +327,20 @@ export default function CreateUpdateStudent(props) {
                                                         setFieldValue('unitOrganizationName', newValue.label)
                                                         setUnitOrganizationId(newValue.id);
 
-                                                    } else {
-                                                        setFieldValue('unitOrganizationId', '')
-                                                        setFieldValue('unitOrganizationName', '')
-                                                        setFieldValue('departmentOrganizationId', '')
-                                                        setFieldValue('departmentOrganizationName', '')
-                                                        setUnitOrganizationId('');
-                                                        setDepartmentOrganizationId('');
-
                                                     }
+                                                    setFieldValue('departmentOrganizationId', '')
+                                                    setFieldValue('departmentOrganizationName', '')
+                                                    setDepartmentOrganizationId('');
+
+                                                    // else {
+                                                    //     setFieldValue('unitOrganizationId', '')
+                                                    //     setFieldValue('unitOrganizationName', '')
+                                                    //     setFieldValue('departmentOrganizationId', '')
+                                                    //     setFieldValue('departmentOrganizationName', '')
+                                                    //     setUnitOrganizationId('');
+                                                    //     setDepartmentOrganizationId('');
+                                                    //
+                                                    // }
                                                 }}
                                             />
                                         </Grid>

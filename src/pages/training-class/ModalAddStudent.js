@@ -103,8 +103,6 @@ const ModalAddStudent = (props) => {
             "email": values.email ?? '',
             "notes": values.notes ?? '',
         }
-        console.log(data)
-        console.log(studentId)
         if (!studentId) {
             createStudentApi(data).then(r => {
                 toast.success('Thêm học viên thành công', Utils.options);
@@ -127,8 +125,6 @@ const ModalAddStudent = (props) => {
             }
         }
     }
-
-    console.log(info)
 //=====================================================================================================
     const createStudentApi = (data) => {
         return apiStudent.createStudent(data);
@@ -337,7 +333,6 @@ const ModalAddStudent = (props) => {
                                                                                                   helperText={touched.departmentOrganizationId && errors.departmentOrganizationId}/>}
                                                             size={"small"}
                                                             onChange={(event, newValue) => {
-                                                                console.log(newValue)
                                                                 if (newValue) {
                                                                     setFieldValue('departmentOrganizationId', newValue.id)
                                                                     setFieldValue('departmentOrganizationName', newValue.label)

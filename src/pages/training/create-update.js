@@ -363,6 +363,7 @@ export default function CreateUpdateTraining(props) {
                                                     value={listBlockOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
                                                         setListBlockOrganization(deleteAllIdSame(values))
+                                                        setListUnitOrganization([])
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}

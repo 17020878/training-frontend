@@ -75,22 +75,20 @@ export default function ManageTraining() {
 //=====================================================================================================
     useEffect(() => {
         getConfigTableApi(getNameToId(tableName, 1)).then(r => {
-            console.log("config table", r)
             let list = r.data;
             list.sort((a, b) => a.index - b.index);
-            console.log("list", list)
             setColumns(list);
         })
     }, [isRefreshConfigTable])
     useEffect(() => {
         getOrganization().then(r => {
             setListOrganization(r.data)
+            console.log(r.data)
             let convert = buildTreeAsset(buildInputTree(r.data))
             setListOrganizationTree(convert)
         })
     },[])
     useEffect(() => {
-        console.log("selectedNodeKey", selectedNodeKey)
         if (!isInitialRenderOrganization) {
             if (selectedNodeKey != null) {
                 submitSearchDefault()
@@ -98,12 +96,11 @@ export default function ManageTraining() {
         } else {
             setIsInitialRenderOrganization(false);
         }
-        dispatch(updateAdvanceSearch({type: "organization", data: selectedNodeKey}))
+        //dispatch(updateAdvanceSearch({type: "organization", data: selectedNodeKey}))
     }, [selectedNodeKey, inputSearch])
     useEffect(() => {
-        dispatch(updateAdvanceSearch({type: "organizationExpanded", data: expandedKeys}))
+        //dispatch(updateAdvanceSearch({type: "organizationExpanded", data: expandedKeys}))
     }, [expandedKeys])
-    console.log(getNodeType(selectedNodeKey,listOrganization))
     const submitSearchDefault = () => {
         let children = [];
         searchTrainingApi({
@@ -351,7 +348,6 @@ export default function ManageTraining() {
                                                                 <TableCell rowSpan={1} align="center">{(item.stt)}</TableCell>
                                                                 {columns.map((column, columnIndex) => {
                                                                     if (column.visible) {
-                                                                        console.log(item[column.code])
                                                                         if (column.code === 'lecturers'
                                                                             || column.code === 'lecturerObjects'
                                                                             || column.code === 'blockOrganizations'

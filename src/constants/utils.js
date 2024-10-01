@@ -128,7 +128,7 @@ export function getNodeType(id, data) {
         }
     }
 
-    // Nếu không tìm thấy, trả về "Unknown"
+    // Nếu không tìm thấy, trả về "All"
     return "All";
 }
 export function buildTree(inputList, parentId = null) {
