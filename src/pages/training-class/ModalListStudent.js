@@ -64,6 +64,9 @@ const ModalListStudent = (props) => {
     const [isInitialRenderOrganization, setIsInitialRenderOrganization] = useState(false);
 //=====================================================================================================
     useEffect(() => {
+        setListStudents(listStudentsParent)
+    },[listStudentsParent])
+    useEffect(() => {
         setStudentObject(studentObjects)
     },[studentObjects])
     useEffect(() => {
@@ -210,7 +213,6 @@ const ModalListStudent = (props) => {
             </ModalConfirmDel>
             <ModalAddStudent
                 studentId={studentId}
-                listOrganizations={listOrganizations}
                 openModalAddStudent={openModalAddStudent}
                 handleCloseModalAddStudent={handleCloseModalAddStudent}>
             </ModalAddStudent>

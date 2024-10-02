@@ -48,6 +48,8 @@ import {NumericFormat} from "react-number-format";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
 import apiTableConfig from "../../api/tableConfig";
+import {DeleteIcon, UpdateIcon} from "../../constants/icon-define";
+import ModalConfirmDel from "../../components/ModalConfirmDelete";
 
 export default function CreateUpdateTrainingClass(props) {
     const dispatch = useDispatch();
@@ -76,6 +78,7 @@ export default function CreateUpdateTrainingClass(props) {
     const [lunchExpense, setLunchExpense] = useState('')
     const [totalExpense, setTotalExpense] = useState('')
     const [anchorElSettingTable, setAnchorElSettingTable] = useState(null);
+    const [studentIdDelete, setStudentIdDelete] = useState('');
     const openSettingTable = Boolean(anchorElSettingTable);
     const [isRefreshConfigTable, setIsRefreshConfigTable] = useState(false)
     const [columns, setColumns] = useState([])
@@ -83,6 +86,7 @@ export default function CreateUpdateTrainingClass(props) {
     const [allStudentsObject, setAllStudentsObject] = useState([]);
     const [listLecturersObject, setListLecturersObject] = useState([]);
     const [allLecturersObject, setAllLecturersObject] = useState([]);
+    const [openModalDel, setOpenModalDel] = useState(false)
     const [listResult, setListResult] = React.useState({
         page: 0,
         pageSize: 1000,
@@ -212,6 +216,9 @@ export default function CreateUpdateTrainingClass(props) {
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
+    const handleCloseModalDel = () => {
+        setOpenModalDel(false)
+    }
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
@@ -220,6 +227,7 @@ export default function CreateUpdateTrainingClass(props) {
         setOpenModalEdit(false)
     }
     const handleUpdateListStudent = (data) => {
+        console.log(data)
         setListResult({...listResult, rows: data, total: data.length});
         //setListStudents(data);
     }
@@ -229,6 +237,13 @@ export default function CreateUpdateTrainingClass(props) {
     const handleCloseNotification = () => {
         setAnchorElSettingTable(null);
     };
+    const deleteStudentBtn = (e) => {
+        setOpenModalDel(true)
+        setStudentIdDelete(e)
+    }
+    const submitDelete = () => {
+        setListResult({...listResult, rows: listResult.rows.filter(item => item.id !== studentIdDelete), total: (listResult.rows.length -1)})
+    }
 //=====================================================================================================
     const back = () => {
         navigate('/training-class')
@@ -270,6 +285,11 @@ export default function CreateUpdateTrainingClass(props) {
                 listUnitOrganizations={listUnitOrganization}
                 handleCloseModalEdit={handleCloseModalEdit}>
             </ModalListStudent>
+            <ModalConfirmDel
+                openModalDel={openModalDel}
+                handleCloseModalDel={handleCloseModalDel}
+                submitDelete={submitDelete}>
+            </ModalConfirmDel>
             <div className={'main-content-body'}>
                 <Formik
                     // validationSchema={validationtraining-class}
@@ -863,6 +883,8 @@ export default function CreateUpdateTrainingClass(props) {
                                                                 })}
                                                                 <TableCell style={{minWidth: 120}}
                                                                            align="center">Chi phí</TableCell>
+                                                                <TableCell className={'action-header'} align="center"></TableCell>
+
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody className={'super-app-theme--body'}>
@@ -933,6 +955,14 @@ export default function CreateUpdateTrainingClass(props) {
                                                                         })}
                                                                         <TableCell rowSpan={1}
                                                                                    align="center">{formatVND(totalExpense/parseInt(listResult.rows.length))}</TableCell>
+                                                                        <TableCell className={'action-header filter-table'} rowSpan={1} align="center">
+                                                                            <div className='icon-action'>
+                                                                                <Tooltip className={'deleteButton'} title="Xóa"
+                                                                                         onClick={() => deleteStudentBtn(item.id)}>
+                                                                                    <div><DeleteIcon/></div>
+                                                                                </Tooltip>
+                                                                            </div>
+                                                                        </TableCell>
                                                                     </TableRow>
                                                                 </>
                                                             ))}

@@ -51,9 +51,10 @@ import dayjs from "dayjs";
 import {DesktopDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {convertToAutoComplete} from "../../constants/common";
+import apiCategory from "../../api/category";
 
 const ModalAddStudent = (props) => {
-    const {openModalAddStudent, handleCloseModalAddStudent, listOrganizations, studentId} = props;
+    const {openModalAddStudent, handleCloseModalAddStudent, studentId} = props;
     const dispatch = useDispatch();
     const [location, setLocation] = useSearchParams();
     const navigate = useNavigate();
@@ -62,6 +63,7 @@ const ModalAddStudent = (props) => {
     const [blockOrganizationId, setBlockOrganizationId] = useState('')
     const [unitOrganizationId, setUnitOrganizationId] = useState('')
     const [departmentOrganizationId, setDepartmentOrganizationId] = useState('')
+    const [studentObject, setStudentObject] = useState([]);
     const [info, setInfo] = useState({
         name: '',
         dateOfBirth: '',
@@ -73,23 +75,39 @@ const ModalAddStudent = (props) => {
         phone: '',
         email: '',
         notes: '',
+        studentObject: ''
     })
 //=====================================================================================================
     useEffect(() => {
-        setListOrganization(listOrganizations);
-    }, [listOrganizations])
+        getCategoryApi({
+            paging: false,
+            type: "StudentObject"
+        }).then(r => {
+            if (r.data.responses != null) setStudentObject(r.data.responses)
+        })
+    }, [])
     useEffect(() => {
-        if(studentId){
+        getOrganization().then(r => {
+            setListOrganization(convertToAutoComplete(r.data, 'name'));
+        })
+    }, [])
+    useEffect(() => {
+        if (studentId) {
             getDetailApi(studentId).then(r => {
                 setInfo(r.data)
                 setSex(r.data.sex);
-            }).catch(e => {})
+            }).catch(e => {
+            })
         }
-    }, [studentId,openModalAddStudent])
+    }, [studentId, openModalAddStudent])
+    console.log('listOrganization11111111111111')
+    console.log(listOrganization)
+    console.log('listOrganization222222222222')
 //=====================================================================================================
     const handleChangeSex = e => {
         setSex(e.target.value);
     };
+
     function onSubmitFunction(values) {
         let data = {
             "name": values.name ?? '',
@@ -98,6 +116,7 @@ const ModalAddStudent = (props) => {
             "blockOrganizationId": values.blockOrganizationId ?? '',
             "unitOrganizationId": values.unitOrganizationId ?? '',
             "departmentOrganizationId": values.departmentOrganizationId ?? '',
+            "studentObjectId": values.studentObjectId ?? '',
             "jobTitle": values.jobTitle ?? '',
             "phone": values.phone ?? '',
             "email": values.email ?? '',
@@ -125,6 +144,7 @@ const ModalAddStudent = (props) => {
             }
         }
     }
+
 //=====================================================================================================
     const createStudentApi = (data) => {
         return apiStudent.createStudent(data);
@@ -135,13 +155,20 @@ const ModalAddStudent = (props) => {
     const getDetailApi = (studentId) => {
         return apiStudent.getDetailStudent(studentId);
     }
+    const getCategoryApi = (body) => {
+        return apiCategory.getCategory(body);
+    }
+    const getOrganization = () => {
+        return apiOrganization.getOrganization()
+    }
 //=====================================================================================================
     return (
         <div>
-            <Dialog className={"modal modal-width-1000"} open={openModalAddStudent} onClose={handleCloseModalAddStudent}>
+            <Dialog className={"modal modal-width-1000"} open={openModalAddStudent}
+                    onClose={handleCloseModalAddStudent}>
                 <div className={'modal-group'}>
                     <DialogTitle>
-                        <div className={'vmp-tittle'}>{studentId ? 'Cập nhật học viên': 'Thêm học viên'}</div>
+                        <div className={'vmp-tittle'}>{studentId ? 'Cập nhật học viên' : 'Thêm học viên'}</div>
                         <IconButton
                             aria-label="close"
                             onClick={handleCloseModalAddStudent}
@@ -170,6 +197,7 @@ const ModalAddStudent = (props) => {
                                     unitOrganizationName: studentId ? info.unitOrganization.name : '',
                                     departmentOrganizationId: studentId ? info.departmentOrganization.id : '',
                                     departmentOrganizationName: studentId ? info.departmentOrganization.name : '',
+                                    studentObjectId: studentId ? info.studentObject.id : '',
                                     jobTitle: studentId ? info.jobTitle : '',
                                     phone: studentId ? info.phone : '',
                                     email: studentId ? info.email : '',
@@ -224,6 +252,25 @@ const ModalAddStudent = (props) => {
                                                         </LocalizationProvider>
                                                     </Grid>
                                                     <Grid item xs={4} md={3}>
+                                                        <div className={'label-input'}>Đối tượng học viên<span
+                                                            className={'error-message'}>*</span></div>
+                                                        <FormControl fullWidth>
+                                                            <Select
+                                                                labelId="is_infinite_label"
+                                                                id='studentObjectId'
+                                                                name='studentObjectId'
+                                                                value={values.studentObjectId}
+                                                                onChange={handleChange}
+                                                                size={"small"}>
+                                                                {studentObject.map((item) =>
+                                                                    <MenuItem value={item.id}>{item.name}</MenuItem>
+                                                                )}
+                                                            </Select>
+                                                            <FormHelperText
+                                                                className={'error-message'}>{errors.studentObjectId}</FormHelperText>
+                                                        </FormControl>
+                                                    </Grid>
+                                                    <Grid item xs={4} md={3}>
                                                         <div className={'label-input'}>Giới tính<span
                                                             className={'error-message'}>*</span></div>
                                                         <FormControl fullWidth>
@@ -266,17 +313,25 @@ const ModalAddStudent = (props) => {
                                                                     setFieldValue('blockOrganizationId', newValue.id)
                                                                     setFieldValue('blockOrganizationName', newValue.label)
                                                                     setBlockOrganizationId(newValue.id);
-                                                                } else {
-                                                                    setFieldValue('blockOrganizationId', '')
-                                                                    setFieldValue('blockOrganizationName', '')
-                                                                    setFieldValue('unitOrganizationId', '')
-                                                                    setFieldValue('unitOrganizationName', '')
-                                                                    setFieldValue('departmentOrganizationId', '')
-                                                                    setFieldValue('departmentOrganizationName', '')
-                                                                    setBlockOrganizationId('');
-                                                                    setUnitOrganizationId('')
-                                                                    setDepartmentOrganizationId('')
                                                                 }
+                                                                setFieldValue('unitOrganizationId', '')
+                                                                setFieldValue('unitOrganizationName', '')
+                                                                setFieldValue('departmentOrganizationId', '')
+                                                                setFieldValue('departmentOrganizationName', '')
+                                                                setUnitOrganizationId('')
+                                                                setDepartmentOrganizationId('')
+                                                                // else {
+                                                                //     setFieldValue('blockOrganizationId', '')
+                                                                //     setFieldValue('blockOrganizationName', '')
+                                                                //     setFieldValue('unitOrganizationId', '')
+                                                                //     setFieldValue('unitOrganizationName', '')
+                                                                //     setFieldValue('departmentOrganizationId', '')
+                                                                //     setFieldValue('departmentOrganizationName','')
+                                                                //     setBlockOrganizationId('');
+                                                                //     setUnitOrganizationId('')
+                                                                //     setDepartmentOrganizationId('')
+                                                                // }
+
                                                             }}
                                                         />
                                                     </Grid>
@@ -303,15 +358,20 @@ const ModalAddStudent = (props) => {
                                                                     setFieldValue('unitOrganizationName', newValue.label)
                                                                     setUnitOrganizationId(newValue.id);
 
-                                                                } else {
-                                                                    setFieldValue('unitOrganizationId', '')
-                                                                    setFieldValue('unitOrganizationName', '')
-                                                                    setFieldValue('departmentOrganizationId', '')
-                                                                    setFieldValue('departmentOrganizationName', '')
-                                                                    setUnitOrganizationId('');
-                                                                    setDepartmentOrganizationId('');
-
                                                                 }
+                                                                setFieldValue('departmentOrganizationId', '')
+                                                                setFieldValue('departmentOrganizationName', '')
+                                                                setDepartmentOrganizationId('');
+
+                                                                // else {
+                                                                //     setFieldValue('unitOrganizationId', '')
+                                                                //     setFieldValue('unitOrganizationName', '')
+                                                                //     setFieldValue('departmentOrganizationId', '')
+                                                                //     setFieldValue('departmentOrganizationName', '')
+                                                                //     setUnitOrganizationId('');
+                                                                //     setDepartmentOrganizationId('');
+                                                                //
+                                                                // }
                                                             }}
                                                         />
                                                     </Grid>
@@ -333,6 +393,7 @@ const ModalAddStudent = (props) => {
                                                                                                   helperText={touched.departmentOrganizationId && errors.departmentOrganizationId}/>}
                                                             size={"small"}
                                                             onChange={(event, newValue) => {
+                                                                console.log(newValue)
                                                                 if (newValue) {
                                                                     setFieldValue('departmentOrganizationId', newValue.id)
                                                                     setFieldValue('departmentOrganizationName', newValue.label)
