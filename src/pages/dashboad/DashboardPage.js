@@ -7,7 +7,7 @@ import {
     getListObjectBykey,
     getListStatusStudentByAttendance,
     getListYear,
-    getTrainingTypesPutInTraining,
+    getTrainingTypesPutInTraining, totalExpenseByStudentObject,
     typeDashboardStatistical
 } from "../../constants/utils";
 import {useSelector} from "react-redux";
@@ -31,11 +31,14 @@ export default function DashboardPage() {
     const [trainingIds, setTrainingIds] = useState([]);
     const [lecturerObjectsStatistical, setLecturerObjectsStatistical] = useState([]);
     const [totalLecturerObjectsStatistical, setTotalLecturerObjectsStatistical] = useState([]);
+    const [studentObjectsStatistical, setStudentObjectsStatistical] = useState([]);
+    const [totalStudentObjectsStatistical, setTotalStudentObjectsStatistical] = useState([]);
     const [formTrainingStatistical, setFormTrainingStatistical] = useState([]);
     const [totalFormTrainingStatistical, setTotalFormTrainingStatistical] = useState([]);
     const [trainingTypesStatistical, setTrainingTypesStatistical] = useState([]);
     const [totalTrainingTypesStatistical, setTotalTrainingTypesStatistical] = useState([]);
     const [allPlans, setAllPlans] = useState([]);
+    const [listExpenseStudentObjectStatistical, setListExpenseStudentObjectStatistical] = useState([]);
     const [listStudentStatistical, setListStudentStatistical] = useState([]);
     const [totalStatusAttendance, setTotalStatusAttendance] = useState([]);
     const [listStatusAttendanceStatistical, setListStatusAttendanceStatistical] = useState([]);
@@ -68,6 +71,7 @@ export default function DashboardPage() {
                 id: student.id,
                 name: student.blockOrganization.name,
             })), 'name','name', 'value'))
+            setListExpenseStudentObjectStatistical(totalExpenseByStudentObject(r.data))
         }).catch(e => {})
     },[trainingIds])
     useEffect(() => {
@@ -76,16 +80,20 @@ export default function DashboardPage() {
             }).catch(e => {})
     }, [isRefresh, allPlans])
     useEffect(() => {
-        getAllTrainingClassByTrainingsApi(allTrainings.map(item => item.id)).then(r => {
-            setExpenseStatistical(expenseByStudentObject(r.data))
-        })
+        // getAllTrainingClassByTrainingsApi(allTrainings.map(item => item.id)).then(r => {
+        //     setExpenseStatistical(expenseByStudentObject(r.data))
+        // })
         setTrainingIds(allTrainings.map(item => item.id))
         let listLecturerObjects = getListObjectBykey(allTrainings,'lecturerObjects');
+        let listStudentObjects = getListObjectBykey(allTrainings,'studentObjects');
         let listFormTraining = getListObjectBykey(allTrainings,'formTraining');
         let listTrainingTypes = getListObjectBykey(getTrainingTypesPutInTraining(allPlans, allTrainings),'trainingTypes');
 
         setTotalLecturerObjectsStatistical(listLecturerObjects.length)
         setLecturerObjectsStatistical(typeDashboardStatistical(listLecturerObjects, 'name', 'label', 'value'))
+
+        setTotalStudentObjectsStatistical(listStudentObjects.length)
+        setStudentObjectsStatistical(typeDashboardStatistical(listStudentObjects, 'name', 'label', 'value'))
 
         setTotalFormTrainingStatistical(listFormTraining.length)
         setFormTrainingStatistical(typeDashboardStatistical(listFormTraining, 'name','label', 'value'))
@@ -235,11 +243,11 @@ export default function DashboardPage() {
                             </Grid>
                         </Grid>
                         <Grid item container spacing={1.5} xs={12}>
-                            <Grid item xs={6}>
+                            <Grid item xs={4}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
                                         <div className={'item-dashboard-header'}>
-                                            <div className={'item-dashboard-tittle'}>Tỉ lệ giảng viên</div>
+                                            <div className={'item-dashboard-tittle'}>Tỉ lệ phân loại giảng viên</div>
                                         </div>
                                         <div style={{height: '38px'}}>
 
@@ -249,7 +257,7 @@ export default function DashboardPage() {
                                     </div>
                                 </div>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={4}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
                                         <div className={'item-dashboard-header'}>
@@ -260,6 +268,20 @@ export default function DashboardPage() {
                                         </div>
                                         <ItemPie optimal={true} list={formTrainingStatistical} title={'Hình thức đào tạo'}
                                                  sum={totalFormTrainingStatistical}/>
+                                    </div>
+                                </div>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <div style={{overflowY: 'auto'}}>
+                                    <div className={'item-dashboard-pie-chart'}>
+                                        <div className={'item-dashboard-header'}>
+                                            <div className={'item-dashboard-tittle'}>Tỉ lệ đối tượng tham gia đào tạo</div>
+                                        </div>
+                                        <div style={{height: '38px'}}>
+
+                                        </div>
+                                        <ItemPie optimal={true} list={studentObjectsStatistical} title={'Tỉ lệ đối tượng tham gia đào tạo'}
+                                                 sum={totalStudentObjectsStatistical}/>
                                     </div>
                                 </div>
                             </Grid>
@@ -287,6 +309,14 @@ export default function DashboardPage() {
                             </Grid>
                             <Grid item xs={6}>
                                 <div style={{overflowY: 'auto'}}>
+                                    <div style={{overflowY: 'auto'}}>
+                                        <ItemBar list={listExpenseStudentObjectStatistical} title={'Chi phí đào tạo (Triệu đồng)'}/>
+                                    </div>
+
+                                </div>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
                                         <div className={'item-dashboard-header'}>
                                             <div className={'item-dashboard-tittle'}>Tỉ lệ học viên hoàn thành chương trình đào tạo
@@ -298,14 +328,6 @@ export default function DashboardPage() {
                                         <ItemPie optimal={true} list={listStatusAttendanceStatistical} title={'Tỉ lệ học viên hoàn thành chương trình đào tạo'}
                                                  sum={totalStatusAttendance}/>
                                     </div>
-                                </div>
-                            </Grid>
-                            <Grid item xs={6}>
-                                <div style={{overflowY: 'auto'}}>
-                                    <div style={{overflowY: 'auto'}}>
-                                        <ItemBar list={expenseStatistical} title={'Chi phí đào tạo (Triệu đồng)'}/>
-                                    </div>
-
                                 </div>
                             </Grid>
                             {/*<Grid item xs={6}>*/}

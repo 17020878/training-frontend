@@ -60,7 +60,7 @@ export default function CreateUpdateTrainingSession(props) {
     const [allLecturers, setAllLecturers] = useState([]);
     const [listLecturers, setListLecturers] = useState([]);
     const [openModal, setOpenModal] = useState(false)
-    const [traningClass, setTraningClass] = useState([]);
+    const [trainingClass, setTrainingClass] = useState([]);
     const [formTraining, setFormTraining] = useState([]);
     const [organizationLocation, setOrganizationLocation] = useState([]);
     const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
@@ -72,6 +72,7 @@ export default function CreateUpdateTrainingSession(props) {
     const [logisticsExpense, setLogisticsExpense] = useState('')
     const [lunchExpense, setLunchExpense] = useState('')
     const [lecturerExpense, setLecturerExpense] = useState('')
+    const [trainingClassId, setTrainingClassId] = useState('')
     const [total, setTotal] = useState('')
     const [anchorElSettingTable, setAnchorElSettingTable] = useState(null);
     const openSettingTable = Boolean(anchorElSettingTable);
@@ -124,7 +125,7 @@ export default function CreateUpdateTrainingSession(props) {
             setAllLecturers(r.data)
         })
         getAllTrainingClassApi().then(r => {
-            setTraningClass(r.data)
+            setTrainingClass(r.data)
         })
 
         getCategoryApi({
@@ -147,6 +148,7 @@ export default function CreateUpdateTrainingSession(props) {
             }).catch(e => {
             })
             getDetailApi(location.get('id')).then(r => {
+                setTrainingClassId(r.data.trainingClass.id)
                 setInfo(r.data)
                 setListLecturers(r.data.lecturers)
                 setListFileServer(r.data.documents)
@@ -171,7 +173,9 @@ export default function CreateUpdateTrainingSession(props) {
         let data = {
             "studentId": id,
             "trainingSessionId": location.get('id'),
-            "statusId": e.target.value
+            "statusId": e.target.value,
+            "trainingClassId": trainingClassId,
+            "trainingId": (trainingClass.find(item => item.id == trainingClassId).training.id),
         }
         setListAttendanceStudent(removeDuplicateObjects([...listAttendanceStudent, data]))
         setListResult({...listResult, rows: updateStudentStatus(listResult.rows, id, e.target.value)})
@@ -446,9 +450,12 @@ export default function CreateUpdateTrainingSession(props) {
                                                     id='trainingClassId'
                                                     name='trainingClassId'
                                                     value={values.trainingClassId}
-                                                    onChange={handleChange}
+                                                    onChange={(event) => {
+                                                        setFieldValue('trainingClassId', event.target.value);
+                                                        setTrainingClassId(event.target.value)
+                                                    }}
                                                     size={"small"}>
-                                                    {traningClass.map((item) =>
+                                                    {trainingClass.map((item) =>
                                                         <MenuItem value={item.id}>{item.name}</MenuItem>
                                                     )}
                                                 </Select>

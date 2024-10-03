@@ -225,6 +225,7 @@ export const getTrainingTypesPutInTraining = (jsonPlan, jsonTraining) => {
     });
     return jsonTraining;
 }
+//lâ
 export const getListStatusStudentByAttendance = (data) => {
     const result = {};
 
@@ -516,6 +517,26 @@ export function deleteIdInArray(array, index){
     array.splice(index, 1);
 
     return array; // Trả về mảng đã được sửa đổi
+}
+// hàm tính tổng chi phí theo đối tượng học viên
+export function totalExpenseByStudentObject(data) {
+    return data.reduce((acc, curr) => {
+        const studentId = curr.student.studentObject.id;
+        const expense = curr.expense;
+
+        // Tìm kiếm nếu studentObject.id đã có trong danh sách tóm tắt
+        const existingEntry = acc.find(entry => entry.name === curr.student.studentObject.name);
+
+        if (existingEntry) {
+            // Nếu đã có thì cộng dồn expense
+            existingEntry.value += expense;
+        } else {
+            // Nếu chưa có, thêm mới vào danh sách
+            acc.push({ name: curr.student.studentObject.name, value: expense });
+        }
+
+        return acc;
+    }, []);
 }
 //xóa id trùng trong list object
 export function removeDuplicateObjects(objects) {
