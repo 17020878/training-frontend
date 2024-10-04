@@ -42,22 +42,10 @@ export default function DashboardPage() {
     const [listStudentStatistical, setListStudentStatistical] = useState([]);
     const [totalStatusAttendance, setTotalStatusAttendance] = useState([]);
     const [listStatusAttendanceStatistical, setListStatusAttendanceStatistical] = useState([]);
-    const [expenseStatistical, setExpenseStatistical] = useState([]);
-    const [listStudentsObject, setListStudentsObject] = useState([]);
-    const [allStudentsObject, setAllStudentsObject] = useState([]);
+    const [year, setYear] = useState(new Date().getFullYear());
+    const [month, setMonth] = useState(new Date().getMonth());
 
 //=====================================================================================================
-    useEffect(() => {
-        getCategoryApi({
-            paging: false,
-            type: "StudentObject"
-        }).then(r => {
-            if (r.data.responses != null) setAllStudentsObject(r.data.responses)
-        })
-    },[])
-    useEffect(() => {
-
-    },[listStudentsObject])
     useEffect(() => {
         getAllPlanApi().then(r => {
             setAllPlans(r.data);
@@ -118,6 +106,25 @@ export default function DashboardPage() {
     const getCategoryApi = (body) => {
         return apiCategory.getCategory(body);
     }
+
+    useEffect(() => {
+        console.log(createStartOfMonthTimestamp(year, month))
+        console.log(createEndOfMonthTimestamp(year, month))
+    },[year,month])
+    const createStartOfMonthTimestamp = (year, month) => {
+        return new Date(year, month, 1).getTime();
+    };
+    const createEndOfMonthTimestamp = (year, month) => {
+        return new Date(year, month + 1, 0, 23, 59, 59, 999).getTime();
+    };
+    // const filteredData = data.filter(item => {
+    //     const start = item.startDate;
+    //     const end = item.endDate;
+    //
+    //     // Kiểm tra xem khoảng thời gian có nằm trong tháng đã chọn không
+    //     return (start <= endOfMonth && end >= startOfMonth);
+    // });
+
 //=====================================================================================================
     return (
         <div className={'dashboard-body-group'} style={{background: "#eeeeee"}}>
@@ -128,48 +135,16 @@ export default function DashboardPage() {
                     </div>
                 </div>
                 <div className={'flexGroup2'}>
-                    <Grid item xs={12} md={12}>
-                        <div className={'label-input'}>Đối tượng học viên</div>
-                        <FormControl fullWidth>
-                            <Autocomplete
-                                size={"small"}
-                                multiple
-                                id="checkboxes-tags-demo"
-                                className={'multi-select-search'}
-                                options={allStudentsObject}
-                                disableCloseOnSelect
-                                getOptionLabel={(option) => option.name}
-                                renderOption={(props, option, {selected}) => {
-                                    const {key, ...optionProps} = props;
-                                    return (
-                                        <li key={key} {...optionProps}>
-                                            <Checkbox
-                                                icon={icon}
-                                                checkedIcon={checkedIcon}
-                                                style={{marginRight: 8}}
-                                                checked={listStudentsObject.filter(item => item.id === option.id).length > 0}
-                                            />
-                                            {option.name}
-                                        </li>
-                                    );
-                                }}
-                                value={listStudentsObject}
-                                onChange={(event, values, changeReason, changeDetails) => {
-                                    setListStudentsObject(deleteAllIdSame(values))
-                                }}
-                                renderInput={(params) => <TextField
-                                    className={'multi-select-search-text'} {...params} />}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <div style={{width: '100px', marginLeft: '5px'}}>
+                    <div style={{width: '150px', marginLeft: '5px'}}>
+                        <div className={'label-input'}>Theo năm</div>
                         <FormControl fullWidth>
                             <Select
-                                value={timeSearch}
+                                value={year}
                                 onChange={(event) => {
-                                    setTimeSearch(event.target.value);
+                                    setYear(event.target.value);
                                 }}
                                 size={"small"}>
+                                <MenuItem value={0}>Tất cả</MenuItem>
                                 {
                                     getListYear().map((value) => (
                                         <MenuItem value={value.value}>{value.name}</MenuItem>
@@ -180,15 +155,16 @@ export default function DashboardPage() {
                             </Select>
                         </FormControl>
                     </div>
-                    <div style={{width: '100px', marginLeft: '5px'}}>
+                    <div style={{width: '150px', marginLeft: '5px'}}>
+                        <div className={'label-input'}>Theo tháng</div>
                         <FormControl fullWidth>
                             <Select
-                                // multiple
-                                value={timeSearch}
+                                value={month}
                                 onChange={(event) => {
-                                    setTimeSearch(event.target.value);
+                                    setMonth(event.target.value);
                                 }}
                                 size={"small"}>
+                                <MenuItem value={0}>Tất cả</MenuItem>
                                 {
                                     getListMonth().map((value) => (
                                         <MenuItem value={value.value}>{value.name}</MenuItem>
@@ -204,31 +180,31 @@ export default function DashboardPage() {
                     <Grid container spacing={1.5}>
                         <Grid container item spacing={1.5}>
                             <Grid item xs={12} container spacing={1.5}>
-                                <Grid item xs={4}>
+                                <Grid item xs={3}>
                                     <div className={'item-dashboard-data left'}>
                                         <div className={'item-dashboard-data-group'}>
                                             <div className={'item-dashboard-data-top'}>
                                                 <p>Số lượt học viên tham gia đào tạo</p>
                                             </div>
                                             <div className={'item-dashboard-data-bottom'}>
-                                                <p>6</p>
+                                                <p>{listStudentStatistical.reduce((sum, item) => sum + item.value, 0)}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </Grid>
-                                <Grid item xs={4}>
+                                <Grid item xs={3}>
                                     <div className={'item-dashboard-data middle'}>
                                         <div className={'item-dashboard-data-group'}>
                                             <div className={'item-dashboard-data-top'}>
                                                 <p>Số chương trình đào tạo</p>
                                             </div>
                                             <div className={'item-dashboard-data-bottom'}>
-                                                <p>8</p>
+                                                <p>{allTrainings.length}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </Grid>
-                                <Grid item xs={4}>
+                                <Grid item xs={3}>
                                     <div className={'item-dashboard-data right'}>
                                         <div className={'item-dashboard-data-group'}>
                                             <div className={'item-dashboard-data-top'}>
@@ -236,6 +212,24 @@ export default function DashboardPage() {
                                             </div>
                                             <div className={'item-dashboard-data-bottom'}>
                                                 <p>10</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <div className={'item-dashboard-data out'}>
+                                        <div className={'item-dashboard-data-group'}>
+                                            <div className={'item-dashboard-data-top'}>
+                                                <p>Tổng chi phí đào tạo</p>
+                                            </div>
+                                            <div className={'item-dashboard-data-bottom'}>
+                                                <div className={'flexGroup1'}>
+                                                    <p className={'mr5'}>{allTrainings.reduce((sum, item) => sum + (item.totalExpense || 0), 0).toLocaleString('vi-VN', {
+                                                        minimumFractionDigits: 0,
+                                                        maximumFractionDigits: 2
+                                                    })}</p>
+                                                    <span className={'medium color-white'}>triệu đồng</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
