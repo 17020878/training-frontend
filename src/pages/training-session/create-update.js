@@ -566,7 +566,7 @@ export default function CreateUpdateTrainingSession(props) {
                                                     }}
                                                     value={listLecturers}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListLecturers(deleteAllIdSame(values))
+                                                        setListLecturers(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}

@@ -50,6 +50,8 @@ import SettingColumnTable from "../../components/SettingColumnTable";
 import apiTableConfig from "../../api/tableConfig";
 import {DeleteIcon, UpdateIcon} from "../../constants/icon-define";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
+import {DesktopDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 
 export default function CreateUpdateTrainingClass(props) {
     const dispatch = useDispatch();
@@ -107,6 +109,8 @@ export default function CreateUpdateTrainingClass(props) {
         logisticsExpense: '',
         lunchExpense: '',
         totalExpense: '',
+        startDate: '',
+        endDate: '',
         notes: '',
     })
 
@@ -188,6 +192,8 @@ export default function CreateUpdateTrainingClass(props) {
             lecturerObjectIds: listLecturersObject.map(item => item.id) ?? '',
             studentObjectIds: listStudentsObject.map(item => item.id) ?? '',
             studentIds: listResult.rows.map(item => item.id) ?? '',
+            startDate: values.startDate ?? '',
+            endDate: values.endDate ?? '',
             notes: values.notes ?? '',
         }
         if (!isUpdate) {
@@ -309,6 +315,8 @@ export default function CreateUpdateTrainingClass(props) {
                         logisticsExpense: idUpdate ? info.logisticsExpense : '',
                         lunchExpense: idUpdate ? info.lunchExpense : '',
                         totalExpense: idUpdate ? info.totalExpense : '',
+                        startDate: idUpdate ? info.startDate : '',
+                        endDate: idUpdate ? info.endDate : '',
                         notes: idUpdate ? info.notes : '',
                     }}
                     onSubmit={
@@ -514,7 +522,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                     }}
                                                     value={listBlockOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListBlockOrganization(deleteAllIdSame(values))
+                                                        setListBlockOrganization(deleteAllIdSame(values, 'id'))
                                                         setListUnitOrganization([])
                                                     }}
                                                     renderInput={(params) => <TextField
@@ -552,7 +560,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                     }}
                                                     value={listUnitOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListUnitOrganization(deleteAllIdSame(values))
+                                                        setListUnitOrganization(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -587,7 +595,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                     }}
                                                     value={listLecturersObject}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListLecturersObject(deleteAllIdSame(values))
+                                                        setListLecturersObject(deleteAllIdSame(values, 'id'))
                                                         setListLecturers([])
                                                     }}
                                                     renderInput={(params) => <TextField
@@ -623,12 +631,50 @@ export default function CreateUpdateTrainingClass(props) {
                                                     }}
                                                     value={listStudentsObject}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListStudentsObject(deleteAllIdSame(values))
+                                                        setListStudentsObject(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
                                                 />
                                             </FormControl>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Ngày bắt đầu<span
+                                                className={'error-message'}>*</span></div>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DesktopDatePicker
+                                                    className={'date-news formik-input'}
+                                                    inputFormat="DD-MM-YYYY"
+                                                    format="DD-MM-YYYY"
+                                                    value={values.startDate}
+                                                    onChange={values => props.setFieldValue("startDate", values)
+                                                        // setTimeSearch(values)
+                                                    }
+                                                    error={touched.startDate && Boolean(errors.startDate)}
+                                                    helperText={touched.startDate && errors.startDate}
+                                                    renderInput={(params) => <TextField
+                                                        size={"small"}  {...params} />}
+                                                />
+                                            </LocalizationProvider>
+                                        </Grid>
+                                        <Grid item xs={4} md={3}>
+                                            <div className={'label-input'}>Ngày kết thúc<span
+                                                className={'error-message'}>*</span></div>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DesktopDatePicker
+                                                    className={'date-news formik-input'}
+                                                    inputFormat="DD-MM-YYYY"
+                                                    format="DD-MM-YYYY"
+                                                    value={values.endDate}
+                                                    onChange={values => props.setFieldValue("endDate", values)
+                                                        // setTimeSearch(values)
+                                                    }
+                                                    error={touched.endDate && Boolean(errors.endDate)}
+                                                    helperText={touched.endDate && errors.endDate}
+                                                    renderInput={(params) => <TextField
+                                                        size={"small"}  {...params} />}
+                                                />
+                                            </LocalizationProvider>
                                         </Grid>
                                         <Grid item xs={4} md={3}>
                                             <div className={'label-input'}>Địa điểm đào tạo<span
@@ -677,7 +723,7 @@ export default function CreateUpdateTrainingClass(props) {
                                                     }}
                                                     value={listLecturers}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListLecturers(deleteAllIdSame(values))
+                                                        setListLecturers(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}

@@ -176,21 +176,21 @@ export const currencyFormatter = (value) => {
 }
 export const getListYear = () => {
     let listYear = [];
-    for (let i = 2010; i < 2025; i++) {
+    for (let i = 2010; i < 2030; i++) {
         let item = {
-            value: `${i}-01-01/${i}-12-31`,
-            name: i
+            value: i,
+            name: 'Năm ' + i
         }
         listYear.push(item);
     }
     return listYear;
 }
 export const getListMonth = (year) => {
-    let listYear = [];
+    let listYear = [{value:0,name:"Tất cả"}];
     for (let i = 1; i < 13; i++) {
         let item = {
-            value: `${i}-${i}-01/${i}-${i}-31`,
-            name: i
+            value: i,
+            name: 'Tháng ' + i
         }
         listYear.push(item);
     }
@@ -225,7 +225,24 @@ export const getTrainingTypesPutInTraining = (jsonPlan, jsonTraining) => {
     });
     return jsonTraining;
 }
-//lâ
+//lấy hinh thuc dao tao va loai khoa dao tao trong training cho vao training class
+export const getFormTrainingPutInTrainingClass = (jsonTraining, jsonTrainingClass) => {
+    jsonTrainingClass.forEach(item => {
+        const trainingIdToCheck = item.training.id; // Lấy ID của training từ từng item trong jsonTrainingClass
+        const trainingFromJsonTraining = jsonTraining.find(training => training.id === trainingIdToCheck); // Tìm đối tượng kế hoạch trong jsonTraining
+
+        if (trainingFromJsonTraining) {
+            // Lấy trainingTypes từ jsonTraining
+            const formTraining = trainingFromJsonTraining.formTraining;
+            const trainingTypes = trainingFromJsonTraining.trainingTypes;
+            // Gán trainingTypes vào item
+            item.formTraining = formTraining;
+            item.trainingTypes = trainingTypes;
+        }
+    });
+    return jsonTrainingClass;
+}
+//tính tỉ le hoc vien hoan thanh chương trinh dao tao
 export const getListStatusStudentByAttendance = (data) => {
     const result = {};
 
@@ -548,16 +565,16 @@ export function removeDuplicateObjects(objects) {
         return acc;
     }, []);
 }
-//xóa id trùng, xóa luôn cả id trùng đó
-export function deleteAllIdSame(data){
+//xóa value trùng, xóa luôn cả value trùng đó
+export function deleteAllIdSame(data, key){
     return Object.values(data.reduce((acc, curr) => {
-        if (!acc[curr.id]) {
-            acc[curr.id] = {
+        if (!acc[curr[key]]) {
+            acc[curr[key]] = {
                 count: 0,
                 item: curr
             };
         }
-        acc[curr.id].count++;
+        acc[curr[key]].count++;
         return acc;
     }, {})).filter(item => item.count === 1).map(item => item.item);
 }

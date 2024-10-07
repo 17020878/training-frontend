@@ -16,6 +16,10 @@ class ApiAttendance{
         return axiosClient.post(API_MAP.GET_ALL_ATTENDANCE_BY_TRAINING,ids);
     }
 
+    getAllAttendanceByTrainingClass= (ids) => {
+        return axiosClient.post(API_MAP.GET_ALL_ATTENDANCE_BY_TRAINING_CLASS,ids);
+    }
+
 
 }
 

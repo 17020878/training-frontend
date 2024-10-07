@@ -362,7 +362,7 @@ export default function CreateUpdateTraining(props) {
                                                     }}
                                                     value={listBlockOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListBlockOrganization(deleteAllIdSame(values))
+                                                        setListBlockOrganization(deleteAllIdSame(values, 'id'))
                                                         setListUnitOrganization([])
                                                     }}
                                                     renderInput={(params) => <TextField
@@ -400,7 +400,7 @@ export default function CreateUpdateTraining(props) {
                                                     }}
                                                     value={listUnitOrganization}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListUnitOrganization(deleteAllIdSame(values))
+                                                        setListUnitOrganization(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -597,7 +597,7 @@ export default function CreateUpdateTraining(props) {
                                                     }}
                                                     value={listLecturersObject}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListLecturersObject(deleteAllIdSame(values))
+                                                        setListLecturersObject(deleteAllIdSame(values, 'id'))
                                                         setListLecturers([])
                                                     }}
                                                     renderInput={(params) => <TextField
@@ -633,7 +633,7 @@ export default function CreateUpdateTraining(props) {
                                                     }}
                                                     value={listStudentsObject}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListStudentsObject(deleteAllIdSame(values))
+                                                        setListStudentsObject(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}
@@ -762,7 +762,7 @@ export default function CreateUpdateTraining(props) {
                                                     }}
                                                     value={listLecturers}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListLecturers(deleteAllIdSame(values))
+                                                        setListLecturers(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}

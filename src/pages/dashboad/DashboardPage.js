@@ -2,7 +2,7 @@ import {Autocomplete, Checkbox, FormControl, Grid, MenuItem, Select, TextField} 
 import React, {useEffect, useState} from "react";
 import {
     deleteAllIdSame,
-    expenseByStudentObject,
+    expenseByStudentObject, getFormTrainingPutInTrainingClass,
     getListMonth,
     getListObjectBykey,
     getListStatusStudentByAttendance,
@@ -28,7 +28,8 @@ export default function DashboardPage() {
     const currentUser = useSelector(state => state.currentUser)
     const [isRefresh, setIsRefresh] = useState(false)
     const [allTrainings, setAllTrainings] = useState([]);
-    const [trainingIds, setTrainingIds] = useState([]);
+    //const [trainingIds, setTrainingIds] = useState([]);
+    const [trainingClassIds, setTrainingClassIds] = useState([]);
     const [lecturerObjectsStatistical, setLecturerObjectsStatistical] = useState([]);
     const [totalLecturerObjectsStatistical, setTotalLecturerObjectsStatistical] = useState([]);
     const [studentObjectsStatistical, setStudentObjectsStatistical] = useState([]);
@@ -38,12 +39,13 @@ export default function DashboardPage() {
     const [trainingTypesStatistical, setTrainingTypesStatistical] = useState([]);
     const [totalTrainingTypesStatistical, setTotalTrainingTypesStatistical] = useState([]);
     const [allPlans, setAllPlans] = useState([]);
+    const [allTrainingClass, setAllTrainingClass] = useState([]);
     const [listExpenseStudentObjectStatistical, setListExpenseStudentObjectStatistical] = useState([]);
     const [listStudentStatistical, setListStudentStatistical] = useState([]);
     const [totalStatusAttendance, setTotalStatusAttendance] = useState([]);
     const [listStatusAttendanceStatistical, setListStatusAttendanceStatistical] = useState([]);
-    const [year, setYear] = useState(new Date().getFullYear());
-    const [month, setMonth] = useState(new Date().getMonth());
+    const [year, setYear] = useState(0);
+    const [listMonths, setListMonths] = useState([]);
 
 //=====================================================================================================
     useEffect(() => {
@@ -52,30 +54,73 @@ export default function DashboardPage() {
         }).catch(e => {})
     },[])
     useEffect(() => {
-        getAllAttendanceByTrainingApi(trainingIds).then(r => {
+        getAllTrainingClass().then(r => {
+            setAllTrainingClass(r.data);
+        }).catch(e => {})
+    },[])
+    // useEffect(() => {
+    //     getAllAttendanceByTrainingApi(trainingIds).then(r => {
+    //         setTotalStatusAttendance(getListStatusStudentByAttendance(r.data).length)
+    //         setListStatusAttendanceStatistical(typeDashboardStatistical(getListStatusStudentByAttendance(r.data), 'name', 'label', 'value'))
+    //         setListStudentStatistical(typeDashboardStatistical(r.data.map(({ student }) => ({
+    //             id: student.id,
+    //             name: student.blockOrganization.name,
+    //         })), 'name','name', 'value'))
+    //         setListExpenseStudentObjectStatistical(totalExpenseByStudentObject(r.data))
+    //     }).catch(e => {})
+    // },[trainingIds])
+    useEffect(() => {
+        getAllAttendanceByTrainingClassApi(trainingClassIds).then(r => {
+
             setTotalStatusAttendance(getListStatusStudentByAttendance(r.data).length)
             setListStatusAttendanceStatistical(typeDashboardStatistical(getListStatusStudentByAttendance(r.data), 'name', 'label', 'value'))
-            setListStudentStatistical(typeDashboardStatistical(r.data.map(({ student }) => ({
+            setListStudentStatistical(typeDashboardStatistical(r.data.filter(student => student.statusId !== 3 && student.statusId !== 6).map(({ student }) => ({
                 id: student.id,
                 name: student.blockOrganization.name,
             })), 'name','name', 'value'))
             setListExpenseStudentObjectStatistical(totalExpenseByStudentObject(r.data))
         }).catch(e => {})
-    },[trainingIds])
+    },[trainingClassIds])
+
     useEffect(() => {
-            getAllTrainingApi().then(r => {
-                setAllTrainings(r.data)
-            }).catch(e => {})
+        getAllTrainingApi().then(r => {
+            setAllTrainings(r.data)
+        }).catch(e => {})
     }, [isRefresh, allPlans])
+    // useEffect(() => {
+    //     // getAllTrainingClassByTrainingsApi(allTrainings.map(item => item.id)).then(r => {
+    //     //     setExpenseStatistical(expenseByStudentObject(r.data))
+    //     // })
+    //     setTrainingIds(allTrainings.map(item => item.id))
+    //     let listLecturerObjects = getListObjectBykey(allTrainings,'lecturerObjects');
+    //     let listStudentObjects = getListObjectBykey(allTrainings,'studentObjects');
+    //     let listFormTraining = getListObjectBykey(allTrainings,'formTraining');
+    //     let listTrainingTypes = getListObjectBykey(getTrainingTypesPutInTraining(allPlans, allTrainings),'trainingTypes');
+    //
+    //     setTotalLecturerObjectsStatistical(listLecturerObjects.length)
+    //     setLecturerObjectsStatistical(typeDashboardStatistical(listLecturerObjects, 'name', 'label', 'value'))
+    //
+    //     setTotalStudentObjectsStatistical(listStudentObjects.length)
+    //     setStudentObjectsStatistical(typeDashboardStatistical(listStudentObjects, 'name', 'label', 'value'))
+    //
+    //     setTotalFormTrainingStatistical(listFormTraining.length)
+    //     setFormTrainingStatistical(typeDashboardStatistical(listFormTraining, 'name','label', 'value'))
+    //
+    //     setTotalTrainingTypesStatistical(listTrainingTypes.length)
+    //     setTrainingTypesStatistical(typeDashboardStatistical(listTrainingTypes, 'name','label', 'value'))
+    // },[allTrainings])
     useEffect(() => {
-        // getAllTrainingClassByTrainingsApi(allTrainings.map(item => item.id)).then(r => {
-        //     setExpenseStatistical(expenseByStudentObject(r.data))
-        // })
-        setTrainingIds(allTrainings.map(item => item.id))
-        let listLecturerObjects = getListObjectBykey(allTrainings,'lecturerObjects');
-        let listStudentObjects = getListObjectBykey(allTrainings,'studentObjects');
-        let listFormTraining = getListObjectBykey(allTrainings,'formTraining');
-        let listTrainingTypes = getListObjectBykey(getTrainingTypesPutInTraining(allPlans, allTrainings),'trainingTypes');
+        console.log(allTrainingClass.map(item => item.id))
+        //setTrainingIds(allTrainings.map(item => item.id))
+        setTrainingClassIds(allTrainingClass.map(item => item.id))
+
+
+        let allTrainingHavePlan = getTrainingTypesPutInTraining(allPlans, allTrainings);
+        let allTrainingClassHaveTrainingTypesAndFormTraining = getFormTrainingPutInTrainingClass(allTrainingHavePlan, allTrainingClass)
+        let listLecturerObjects = getListObjectBykey(allTrainingClass,'lecturerObjects');
+        let listStudentObjects = getListObjectBykey(allTrainingClass,'studentObjects');
+        let listFormTraining = getListObjectBykey(allTrainingClassHaveTrainingTypesAndFormTraining,'formTraining');
+        let listTrainingTypes = getListObjectBykey(allTrainingClassHaveTrainingTypesAndFormTraining,'trainingTypes');
 
         setTotalLecturerObjectsStatistical(listLecturerObjects.length)
         setLecturerObjectsStatistical(typeDashboardStatistical(listLecturerObjects, 'name', 'label', 'value'))
@@ -88,17 +133,32 @@ export default function DashboardPage() {
 
         setTotalTrainingTypesStatistical(listTrainingTypes.length)
         setTrainingTypesStatistical(typeDashboardStatistical(listTrainingTypes, 'name','label', 'value'))
-    },[allTrainings])
-
+    },[allTrainingClass])
+    // useEffect(() => {
+    //     if(year !== 0){
+    //         console.log(allTrainingClass.filter(item => {
+    //             const date = new Date(item.endDate);
+    //             const isSameYear = date.getFullYear() === parseInt(year);
+    //             const isMonthSelected = listMonths.length === 0 || listMonths.some(month => month.value === date.getMonth() + 1);
+    //             return isSameYear && isMonthSelected;
+    //         }))
+    //     }
+    // },[listMonths,year])
 //=====================================================================================================
     const getAllPlanApi = () => {
         return apiPlan.getAllPlan();
     }
+    const getAllTrainingClass = () => {
+        return apiTrainingClass.getAllTrainingClass();
+    }
     const getAllTrainingApi = () => {
         return apiTraining.getAllTraining();
     }
-    const getAllAttendanceByTrainingApi = (ids) => {
-        return apiAttendance.getAllAttendanceByTraining(ids);
+    // const getAllAttendanceByTrainingApi = (ids) => {
+    //     return apiAttendance.getAllAttendanceByTraining(ids);
+    // }
+    const getAllAttendanceByTrainingClassApi = (ids) => {
+        return apiAttendance.getAllAttendanceByTrainingClass(ids);
     }
     const getAllTrainingClassByTrainingsApi = (trainingIds) => {
         return apiTrainingClass.getAllTrainingClassByTrainings(trainingIds);
@@ -106,25 +166,6 @@ export default function DashboardPage() {
     const getCategoryApi = (body) => {
         return apiCategory.getCategory(body);
     }
-
-    useEffect(() => {
-        console.log(createStartOfMonthTimestamp(year, month))
-        console.log(createEndOfMonthTimestamp(year, month))
-    },[year,month])
-    const createStartOfMonthTimestamp = (year, month) => {
-        return new Date(year, month, 1).getTime();
-    };
-    const createEndOfMonthTimestamp = (year, month) => {
-        return new Date(year, month + 1, 0, 23, 59, 59, 999).getTime();
-    };
-    // const filteredData = data.filter(item => {
-    //     const start = item.startDate;
-    //     const end = item.endDate;
-    //
-    //     // Kiểm tra xem khoảng thời gian có nằm trong tháng đã chọn không
-    //     return (start <= endOfMonth && end >= startOfMonth);
-    // });
-
 //=====================================================================================================
     return (
         <div className={'dashboard-body-group'} style={{background: "#eeeeee"}}>
@@ -142,6 +183,7 @@ export default function DashboardPage() {
                                 value={year}
                                 onChange={(event) => {
                                     setYear(event.target.value);
+                                    setListMonths([])
                                 }}
                                 size={"small"}>
                                 <MenuItem value={0}>Tất cả</MenuItem>
@@ -155,24 +197,74 @@ export default function DashboardPage() {
                             </Select>
                         </FormControl>
                     </div>
-                    <div style={{width: '150px', marginLeft: '5px'}}>
-                        <div className={'label-input'}>Theo tháng</div>
-                        <FormControl fullWidth>
-                            <Select
-                                value={month}
-                                onChange={(event) => {
-                                    setMonth(event.target.value);
-                                }}
-                                size={"small"}>
-                                <MenuItem value={0}>Tất cả</MenuItem>
-                                {
-                                    getListMonth().map((value) => (
-                                        <MenuItem value={value.value}>{value.name}</MenuItem>
-                                    ))
-                                }
-                            </Select>
-                        </FormControl>
-                    </div>
+                    {/*<div style={{width: '150px', marginLeft: '5px'}}>*/}
+                    {/*    <div className={'label-input'}>Theo tháng</div>*/}
+                    {/*    <FormControl fullWidth>*/}
+                    {/*        <Select*/}
+                    {/*            value={month}*/}
+                    {/*            onChange={(event) => {*/}
+                    {/*                setMonth(event.target.value);*/}
+                    {/*            }}*/}
+                    {/*            size={"small"}>*/}
+                    {/*            <MenuItem value={0}>Tất cả</MenuItem>*/}
+                    {/*            {*/}
+                    {/*                getListMonth().map((value) => (*/}
+                    {/*                    <MenuItem value={value.value}>{value.name}</MenuItem>*/}
+                    {/*                ))*/}
+                    {/*            }*/}
+                    {/*        </Select>*/}
+                    {/*    </FormControl>*/}
+                    {/*</div>*/}
+                    {
+                        year === 0
+                        ? ''
+                        : <Grid item xs={4} md={3} style={{marginLeft: '10px'}}>
+                                <div className={'label-input'}>Tháng<span
+                                    className={'error-message'}>*</span></div>
+                                <FormControl fullWidth>
+                                    <Autocomplete
+                                        size={"small"}
+                                        multiple
+                                        id="checkboxes-tags-demo"
+                                        className={'multi-select-search'}
+                                        placeholder={"Tất cả"}
+                                        options={getListMonth()}
+                                        disableCloseOnSelect
+                                        getOptionLabel={(option) => option.name}
+                                        renderOption={(props, option, {selected}) => {
+                                            const {key, ...optionProps} = props;
+                                            return (
+                                                <li key={key} {...optionProps}>
+                                                    <Checkbox
+                                                        icon={icon}
+                                                        checkedIcon={checkedIcon}
+                                                        style={{marginRight: 8}}
+                                                        checked={listMonths.filter(item => item.value === option.value).length > 0}
+                                                    />
+                                                    {option.name}
+                                                </li>
+                                            );
+                                        }}
+                                        value={listMonths}
+                                        onChange={(event, values, changeReason, changeDetails) => {
+                                            if(values.length > 0){
+                                                if(values[0].value === 0){
+                                                    if(listMonths.length >= 12) setListMonths([])
+                                                    else setListMonths(getListMonth())
+                                                }else{
+                                                    setListMonths(deleteAllIdSame(values, 'value'))
+                                                }
+                                            }else {
+                                                setListMonths([])
+                                            }
+                                        }}
+                                        renderInput={(params) => <TextField
+                                            className={'multi-select-search-text'} {...params} />}
+                                    />
+                                </FormControl>
+                            </Grid>
+                    }
+
                 </div>
             </div>
             <div className={'main-content-dashboard'}>
@@ -211,7 +303,7 @@ export default function DashboardPage() {
                                                 <p>Tổng số giờ đào tạo</p>
                                             </div>
                                             <div className={'item-dashboard-data-bottom'}>
-                                                <p>10</p>
+                                                <p>{allTrainings.reduce((sum, item) => sum + (item.totalEstimateDuration || 0), 0)}</p>
                                             </div>
                                         </div>
                                     </div>

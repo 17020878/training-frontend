@@ -322,7 +322,7 @@ export default function CreateUpdatePlan(props) {
                                                     }}
                                                     value={listTrainingType}
                                                     onChange={(event, values, changeReason, changeDetails) => {
-                                                        setListTrainingType(deleteAllIdSame(values))
+                                                        setListTrainingType(deleteAllIdSame(values, 'id'))
                                                     }}
                                                     renderInput={(params) => <TextField
                                                         className={'multi-select-search-text'} {...params} />}

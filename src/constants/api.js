@@ -149,6 +149,7 @@ const API_MAP = {
     //-----------------------------------------------------
     GET_ALL_STUDENT_BY_SESSION:API_DOMAIN+"attendance/get-all-student-by-session",
     GET_ALL_ATTENDANCE_BY_TRAINING:API_DOMAIN+"attendance/get-all-attendance-by-training",
+    GET_ALL_ATTENDANCE_BY_TRAINING_CLASS:API_DOMAIN+"attendance/get-all-attendance-by-training-class",
     UPDATE_ATTENDANCE:API_DOMAIN+"attendance/update-attendance",
 }
 export default API_MAP;
