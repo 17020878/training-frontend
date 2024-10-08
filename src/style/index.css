@@ -785,8 +785,24 @@ h5{
     letter-spacing: 0.00938em;
 }
 
-
-
+.message-table-empty {
+    text-align: center;
+    top: 50%;
+}
+.message-table-empty-chart{
+    left: 50%;
+    position: absolute;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+    top: 50%;
+}
+.message-table-empty, .message-table-empty-sof {
+    left: 50%;
+    position: absolute;
+    /*-webkit-transform: translate(-50%, -50%);*/
+    /*transform: translate(-50%, -50%);*/
+}
 .message-table-empty-loading {
     position: absolute;
     top: 62%;
@@ -1896,10 +1912,6 @@ div[role=dialog] button#outlined-success {
 .item-dashboard-sum{
     height:100%
 }
-.item-dashboard-pie-chart{
-    position: relative;
-    /*height: 312px;*/
-}
 .new-employee {
     padding-left: 6px;
     background-color: #74cb2f;
@@ -2024,9 +2036,7 @@ div[role=dialog] button#outlined-success {
 .item-dashboard-pie-chart{
     min-height:260px;
     padding:10px;
-}
-.item-dashboard-pie-chart{
-    /*overflow-y: auto;*/
+    position: relative;
 }
 .menu-disable,.menu-disable .nav-link{
     pointer-events: none;

@@ -81,7 +81,9 @@ export default function ManageTrainingDocument() {
         if(trainingDocumentId){
             deleteTrainingDocumentApi(trainingDocumentId).then( r => {
                 toast.success('Xóa thành công', Utils.options);
-                setRefresh(!refresh)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1100);
             }).catch(e => {})
         }
     }

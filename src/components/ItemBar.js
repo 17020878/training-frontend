@@ -54,8 +54,7 @@ export default function ItemBar(props) {
                     {title}
                 </div>
             </div>
-
-            <div className={'item-dashboard-body mt-10'} style={{ overflowY: 'auto', height: '288px' }}>
+            <div className={'item-dashboard-body mt-10'} style={{ overflowY: 'auto', height: '260px' }}>
                 <Bar options={options} data={data}></Bar>
             </div>
         </div>

@@ -100,9 +100,6 @@ const ModalAddStudent = (props) => {
             })
         }
     }, [studentId, openModalAddStudent])
-    console.log('listOrganization11111111111111')
-    console.log(listOrganization)
-    console.log('listOrganization222222222222')
 //=====================================================================================================
     const handleChangeSex = e => {
         setSex(e.target.value);
@@ -393,7 +390,6 @@ const ModalAddStudent = (props) => {
                                                                                                   helperText={touched.departmentOrganizationId && errors.departmentOrganizationId}/>}
                                                             size={"small"}
                                                             onChange={(event, newValue) => {
-                                                                console.log(newValue)
                                                                 if (newValue) {
                                                                     setFieldValue('departmentOrganizationId', newValue.id)
                                                                     setFieldValue('departmentOrganizationName', newValue.label)

@@ -2,12 +2,13 @@ import {Autocomplete, Checkbox, FormControl, Grid, MenuItem, Select, TextField} 
 import React, {useEffect, useState} from "react";
 import {
     deleteAllIdSame,
-    expenseByStudentObject, getFormTrainingPutInTrainingClass,
+    getFormTrainingPutInTrainingClass,
     getListMonth,
     getListObjectBykey,
     getListStatusStudentByAttendance,
     getListYear,
-    getTrainingTypesPutInTraining, totalExpenseByStudentObject,
+    getTrainingTypesPutInTraining,
+    totalExpenseByStudentObject,
     typeDashboardStatistical
 } from "../../constants/utils";
 import {useSelector} from "react-redux";
@@ -40,6 +41,7 @@ export default function DashboardPage() {
     const [totalTrainingTypesStatistical, setTotalTrainingTypesStatistical] = useState([]);
     const [allPlans, setAllPlans] = useState([]);
     const [allTrainingClass, setAllTrainingClass] = useState([]);
+    const [allTrainingClassDefault, setAllTrainingClassDefault] = useState([]);
     const [listExpenseStudentObjectStatistical, setListExpenseStudentObjectStatistical] = useState([]);
     const [listStudentStatistical, setListStudentStatistical] = useState([]);
     const [totalStatusAttendance, setTotalStatusAttendance] = useState([]);
@@ -55,23 +57,34 @@ export default function DashboardPage() {
     },[])
     useEffect(() => {
         getAllTrainingClass().then(r => {
-            setAllTrainingClass(r.data);
+            setAllTrainingClassDefault(r.data);
+            setAllTrainingClass(r.data)
         }).catch(e => {})
     },[])
-    // useEffect(() => {
-    //     getAllAttendanceByTrainingApi(trainingIds).then(r => {
-    //         setTotalStatusAttendance(getListStatusStudentByAttendance(r.data).length)
-    //         setListStatusAttendanceStatistical(typeDashboardStatistical(getListStatusStudentByAttendance(r.data), 'name', 'label', 'value'))
-    //         setListStudentStatistical(typeDashboardStatistical(r.data.map(({ student }) => ({
-    //             id: student.id,
-    //             name: student.blockOrganization.name,
-    //         })), 'name','name', 'value'))
-    //         setListExpenseStudentObjectStatistical(totalExpenseByStudentObject(r.data))
-    //     }).catch(e => {})
-    // },[trainingIds])
     useEffect(() => {
-        getAllAttendanceByTrainingClassApi(trainingClassIds).then(r => {
-
+        if(year !== 0){
+            // console.log(allTrainingClass.filter(item => {
+            //     const date = new Date(item.endDate);
+            //     const isSameYear = date.getFullYear() === parseInt(year);
+            //     const isMonthSelected = listMonths.length === 0 || listMonths.some(month => month.value === date.getMonth() + 1);
+            //     return isSameYear && isMonthSelected;
+            // }))
+            setAllTrainingClass(allTrainingClassDefault.filter(item => {
+                const date = new Date(item.endDate);
+                const isSameYear = date.getFullYear() === parseInt(year);
+                const isMonthSelected = listMonths.length === 0 || listMonths.some(month => month.value === date.getMonth() + 1);
+                return isSameYear && isMonthSelected;
+            }))
+        }
+    },[listMonths,year])
+    console.log(allTrainingClass)
+    useEffect(() => {
+        getAllTrainingApi().then(r => {
+            setAllTrainings(r.data)
+        }).catch(e => {})
+    }, [isRefresh, allPlans])
+    useEffect(() => {
+        getAllAttendanceByTrainingClassApi(allTrainingClass.map(item => item.id)).then(r => {
             setTotalStatusAttendance(getListStatusStudentByAttendance(r.data).length)
             setListStatusAttendanceStatistical(typeDashboardStatistical(getListStatusStudentByAttendance(r.data), 'name', 'label', 'value'))
             setListStudentStatistical(typeDashboardStatistical(r.data.filter(student => student.statusId !== 3 && student.statusId !== 6).map(({ student }) => ({
@@ -80,39 +93,6 @@ export default function DashboardPage() {
             })), 'name','name', 'value'))
             setListExpenseStudentObjectStatistical(totalExpenseByStudentObject(r.data))
         }).catch(e => {})
-    },[trainingClassIds])
-
-    useEffect(() => {
-        getAllTrainingApi().then(r => {
-            setAllTrainings(r.data)
-        }).catch(e => {})
-    }, [isRefresh, allPlans])
-    // useEffect(() => {
-    //     // getAllTrainingClassByTrainingsApi(allTrainings.map(item => item.id)).then(r => {
-    //     //     setExpenseStatistical(expenseByStudentObject(r.data))
-    //     // })
-    //     setTrainingIds(allTrainings.map(item => item.id))
-    //     let listLecturerObjects = getListObjectBykey(allTrainings,'lecturerObjects');
-    //     let listStudentObjects = getListObjectBykey(allTrainings,'studentObjects');
-    //     let listFormTraining = getListObjectBykey(allTrainings,'formTraining');
-    //     let listTrainingTypes = getListObjectBykey(getTrainingTypesPutInTraining(allPlans, allTrainings),'trainingTypes');
-    //
-    //     setTotalLecturerObjectsStatistical(listLecturerObjects.length)
-    //     setLecturerObjectsStatistical(typeDashboardStatistical(listLecturerObjects, 'name', 'label', 'value'))
-    //
-    //     setTotalStudentObjectsStatistical(listStudentObjects.length)
-    //     setStudentObjectsStatistical(typeDashboardStatistical(listStudentObjects, 'name', 'label', 'value'))
-    //
-    //     setTotalFormTrainingStatistical(listFormTraining.length)
-    //     setFormTrainingStatistical(typeDashboardStatistical(listFormTraining, 'name','label', 'value'))
-    //
-    //     setTotalTrainingTypesStatistical(listTrainingTypes.length)
-    //     setTrainingTypesStatistical(typeDashboardStatistical(listTrainingTypes, 'name','label', 'value'))
-    // },[allTrainings])
-    useEffect(() => {
-        console.log(allTrainingClass.map(item => item.id))
-        //setTrainingIds(allTrainings.map(item => item.id))
-        setTrainingClassIds(allTrainingClass.map(item => item.id))
 
 
         let allTrainingHavePlan = getTrainingTypesPutInTraining(allPlans, allTrainings);
@@ -134,16 +114,8 @@ export default function DashboardPage() {
         setTotalTrainingTypesStatistical(listTrainingTypes.length)
         setTrainingTypesStatistical(typeDashboardStatistical(listTrainingTypes, 'name','label', 'value'))
     },[allTrainingClass])
-    // useEffect(() => {
-    //     if(year !== 0){
-    //         console.log(allTrainingClass.filter(item => {
-    //             const date = new Date(item.endDate);
-    //             const isSameYear = date.getFullYear() === parseInt(year);
-    //             const isMonthSelected = listMonths.length === 0 || listMonths.some(month => month.value === date.getMonth() + 1);
-    //             return isSameYear && isMonthSelected;
-    //         }))
-    //     }
-    // },[listMonths,year])
+
+
 //=====================================================================================================
     const getAllPlanApi = () => {
         return apiPlan.getAllPlan();
@@ -291,7 +263,7 @@ export default function DashboardPage() {
                                                 <p>Số chương trình đào tạo</p>
                                             </div>
                                             <div className={'item-dashboard-data-bottom'}>
-                                                <p>{allTrainings.length}</p>
+                                                <p>{new Set(allTrainingClass.map(item => item.training.id)).size}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -316,7 +288,7 @@ export default function DashboardPage() {
                                             </div>
                                             <div className={'item-dashboard-data-bottom'}>
                                                 <div className={'flexGroup1'}>
-                                                    <p className={'mr5'}>{allTrainings.reduce((sum, item) => sum + (item.totalExpense || 0), 0).toLocaleString('vi-VN', {
+                                                    <p className={'mr5'}>{allTrainingClass.reduce((sum, item) => sum + (item.totalExpense || 0), 0).toLocaleString('vi-VN', {
                                                         minimumFractionDigits: 0,
                                                         maximumFractionDigits: 2
                                                     })}</p>
@@ -332,12 +304,10 @@ export default function DashboardPage() {
                             <Grid item xs={4}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
-                                        <div className={'item-dashboard-header'}>
+                                        <div className={' item-dashboard-header mb10'}>
                                             <div className={'item-dashboard-tittle'}>Tỉ lệ phân loại giảng viên</div>
                                         </div>
-                                        <div style={{height: '38px'}}>
-
-                                        </div>
+                                        
                                         <ItemPie optimal={true} list={lecturerObjectsStatistical} title={'Tỉ lệ giảng viên'}
                                                  sum={totalLecturerObjectsStatistical}/>
                                     </div>
@@ -346,12 +316,10 @@ export default function DashboardPage() {
                             <Grid item xs={4}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
-                                        <div className={'item-dashboard-header'}>
+                                        <div className={' item-dashboard-header mb10'}>
                                             <div className={'item-dashboard-tittle'}>Hình thức đào tạo</div>
                                         </div>
-                                        <div style={{height: '38px'}}>
-
-                                        </div>
+                                        
                                         <ItemPie optimal={true} list={formTrainingStatistical} title={'Hình thức đào tạo'}
                                                  sum={totalFormTrainingStatistical}/>
                                     </div>
@@ -360,12 +328,10 @@ export default function DashboardPage() {
                             <Grid item xs={4}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
-                                        <div className={'item-dashboard-header'}>
+                                        <div className={' item-dashboard-header mb10'}>
                                             <div className={'item-dashboard-tittle'}>Tỉ lệ đối tượng tham gia đào tạo</div>
                                         </div>
-                                        <div style={{height: '38px'}}>
-
-                                        </div>
+                                        
                                         <ItemPie optimal={true} list={studentObjectsStatistical} title={'Tỉ lệ đối tượng tham gia đào tạo'}
                                                  sum={totalStudentObjectsStatistical}/>
                                     </div>
@@ -374,12 +340,10 @@ export default function DashboardPage() {
                             <Grid item xs={6}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
-                                        <div className={'item-dashboard-header'}>
+                                        <div className={' item-dashboard-header mb10'}>
                                             <div className={'item-dashboard-tittle'}>Loại khóa đào tạo</div>
                                         </div>
-                                        <div style={{height: '38px'}}>
-
-                                        </div>
+                                        
                                         <ItemPie optimal={true} list={trainingTypesStatistical} title={'Loại khóa đào tạo'}
                                                  sum={totalTrainingTypesStatistical}/>
                                     </div>
@@ -404,13 +368,11 @@ export default function DashboardPage() {
                             <Grid item xs={6}>
                                 <div style={{overflowY: 'auto'}}>
                                     <div className={'item-dashboard-pie-chart'}>
-                                        <div className={'item-dashboard-header'}>
+                                        <div className={' item-dashboard-header mb10'}>
                                             <div className={'item-dashboard-tittle'}>Tỉ lệ học viên hoàn thành chương trình đào tạo
                                             </div>
                                         </div>
-                                        <div style={{height: '38px'}}>
-
-                                        </div>
+                                        
                                         <ItemPie optimal={true} list={listStatusAttendanceStatistical} title={'Tỉ lệ học viên hoàn thành chương trình đào tạo'}
                                                  sum={totalStatusAttendance}/>
                                     </div>
@@ -457,7 +419,7 @@ export default function DashboardPage() {
                             {/*<Grid item xs={6}>*/}
                             {/*    <div style={{overflowY: 'auto'}}>*/}
                             {/*        <div className={'item-dashboard-pie-chart'}>*/}
-                            {/*            <div className={'item-dashboard-header'}>*/}
+                            {/*            <div className={' item-dashboard-header mb10'}>*/}
                             {/*                <div className={'item-dashboard-tittle'}>Chi phí theo nhóm</div>*/}
                             {/*            </div>*/}
                             {/*            <TreeSelect*/}

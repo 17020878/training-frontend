@@ -5,7 +5,7 @@ import {Doughnut} from 'react-chartjs-2';
 ChartJS.register(ArcElement, Tooltip, Legend, Colors);
 
 export default function ItemTicketPie(props) {
-    const {title,list,sum,type} = props;
+    const {title,list,sum,type,optimal} = props;
     const [data, setData] = useState({
         labels: [],
         datasets: [
@@ -62,13 +62,35 @@ export default function ItemTicketPie(props) {
             datasets[0].data = datas;
             datasets[0].sum = sum;
             setData({...data, labels: labels, datasets: datasets})
+        }else {
+            setData({
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Số lượng',
+                        sum: 0,
+                        data: [0],
+                        hoverOffset: 4,
+                        backgroundColor:[],
+
+                    },
+                ],
+
+            })
         }
     }, [props])
 
     return (
         <div className={'item-dashboard-pie-chart'}>
-            <div className={`item-dashboard-body ${type=='ict'?'ict':''}`}>
-                <Doughnut plugins={[textCenter]} height="230" width="230" options={options} data={data}/>
+            <div className={`item-dashboard-body`}>
+                <div
+                    className={`message-table-empty-chart${list.length === 0 ? '' : 'hidden'}`}>Không
+                    có dữ liệu
+                </div>
+                <div>
+                    <Doughnut plugins={optimal ? [] : [textCenter]} height="230" width="230" options={options}
+                              data={data}/>
+                </div>
             </div>
         </div>
     );

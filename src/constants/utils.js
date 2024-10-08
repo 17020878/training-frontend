@@ -537,23 +537,32 @@ export function deleteIdInArray(array, index){
 }
 // hàm tính tổng chi phí theo đối tượng học viên
 export function totalExpenseByStudentObject(data) {
-    return data.reduce((acc, curr) => {
-        const studentId = curr.student.studentObject.id;
-        const expense = curr.expense;
-
-        // Tìm kiếm nếu studentObject.id đã có trong danh sách tóm tắt
-        const existingEntry = acc.find(entry => entry.name === curr.student.studentObject.name);
-
-        if (existingEntry) {
-            // Nếu đã có thì cộng dồn expense
-            existingEntry.value += expense;
-        } else {
-            // Nếu chưa có, thêm mới vào danh sách
-            acc.push({ name: curr.student.studentObject.name, value: expense });
+    // Bước 1: Xóa các đối tượng trùng lặp theo trainingClassId và student.id
+    const uniqueEntries = data.reduce((acc, curr) => {
+        const key = `${curr.trainingClassId}-${curr.student.id}`;
+        if (!acc[key]) {
+            acc[key] = curr;
         }
-
         return acc;
-    }, []);
+    }, {});
+
+    const filteredData = Object.values(uniqueEntries);
+
+// Bước 2: Gom lại các đối tượng theo studentObject.id và tính tổng expense
+    const expenseSummary = filteredData.reduce((acc, curr) => {
+        const studentId = curr.student.studentObject.id;
+        if (!acc[studentId]) {
+            acc[studentId] = {
+                name: curr.student.studentObject.name,
+                value: 0
+            };
+        }
+        acc[studentId].value += curr.expense;
+        return acc;
+    }, {});
+
+// Chuyển đổi kết quả thành mảng
+    return Object.values(expenseSummary);
 }
 //xóa id trùng trong list object
 export function removeDuplicateObjects(objects) {

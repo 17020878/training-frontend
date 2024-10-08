@@ -165,7 +165,9 @@ export default function ManagePlan() {
         if(planId){
             deletePlanApi(planId).then( r => {
                 toast.success('Xóa thành công', Utils.options);
-                setRefresh(!refresh)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1100);
             }).catch(e => {})
         }
     }

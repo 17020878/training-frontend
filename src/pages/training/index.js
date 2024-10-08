@@ -112,8 +112,11 @@ export default function ManageTraining() {
         }).then(r => {
             setLoading(false)
             let arr;
-            arr = convertArr(r.data.content, listResult)
-            setListResult({...listResult, rows: (arr), total: r.data.totalElements});
+            let content = r.data.content.map(item => JSON.stringify(item)) // Chuyển đổi đối tượng thành chuỗi
+                .filter((item, index, self) => self.indexOf(item) === index) // Lọc các chuỗi trùng lặp
+                .map(item => JSON.parse(item));
+            arr = convertArr(content, listResult)
+            setListResult({...listResult, rows: arr, total: r.data.totalElements});
         }).catch(e => {})
         for (let i = 0; i < listOrganization.length; i++) {
             if (selectedNodeKey == listOrganization[i].id) {
@@ -164,7 +167,9 @@ export default function ManageTraining() {
         if(trainingId){
             deleteTrainingApi(trainingId).then( r => {
                 toast.success('Xóa thành công', Utils.options);
-                setRefresh(!refresh)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1100);
             }).catch(e => {})
         }
     }

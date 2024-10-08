@@ -147,6 +147,7 @@ export default function CreateUpdateTrainingClass(props) {
                 setAllStudentsObject((allTraining.find(item => item.id === r.data.training.id)).studentObjects)
                 setAllLecturersObject((allTraining.find(item => item.id === r.data.training.id)).lecturerObjects)
                 //setAllLecturersDefine((allTraining.find(item => item.id === r.data.training.id)).lecturers)
+                setTrainingId(r.data.training.id);
                 setListLecturersObject(r.data.lecturerObjects)
                 setListStudentsObject(r.data.studentObjects)
                 let arr = convertArr(r.data.students, listResult)
@@ -168,9 +169,9 @@ export default function CreateUpdateTrainingClass(props) {
 
     },[trainingId])
     useEffect(() => {
-        const listLecturerObjectIds = listLecturersObject.map(item => item.id); //ids đối tượng gv
+        let listLecturerObjectIds = listLecturersObject.map(item => item.id); //ids đối tượng gv
         setAllLecturers(allLecturersDefine.filter(item => listLecturerObjectIds.includes(item.lecturerObject.id))) //set all giảng viên
-    },[listLecturersObject])
+    },[listLecturersObject,allLecturersDefine])
     useEffect(() => {
         getCategoryApi({
             paging: false,
@@ -233,7 +234,6 @@ export default function CreateUpdateTrainingClass(props) {
         setOpenModalEdit(false)
     }
     const handleUpdateListStudent = (data) => {
-        console.log(data)
         setListResult({...listResult, rows: data, total: data.length});
         //setListStudents(data);
     }

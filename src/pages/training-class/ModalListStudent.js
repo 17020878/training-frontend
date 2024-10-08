@@ -84,7 +84,6 @@ const ModalListStudent = (props) => {
     //         setListOrganizationTree(convert)
     //     })
     // },[])
-    console.log(selectedNodeKey)
     useEffect(() => {
         if(openModalEdit){
             if (!isInitialRenderOrganization) {
@@ -180,7 +179,9 @@ const ModalListStudent = (props) => {
         if(studentId){
             deleteStudentApi(studentId).then( r => {
                 toast.success('Xóa thành công', Utils.options);
-                setRefresh(!refresh)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1100);
             }).catch(e => {})
         }
     }
@@ -197,7 +198,6 @@ const ModalListStudent = (props) => {
         return apiOrganization.getOrganization()
     }
     const searchStudentApi = (data) => {
-        console.log(data)
         return apiStudent.searchStudent(data);
     }
     const deleteStudentApi = (data) => {

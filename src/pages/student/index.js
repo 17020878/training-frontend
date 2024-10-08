@@ -123,7 +123,6 @@ export default function ManageStudent() {
             }
         }
     }
-    console.log(listResult)
     useEffect(() => {
         let checkExitOrganization = false;
         for (let i = 0; i < listOrganization.length; i++) {
@@ -168,7 +167,9 @@ export default function ManageStudent() {
         if(StudentId){
             deleteStudentApi(StudentId).then( r => {
                 toast.success('Xóa thành công', Utils.options);
-                setRefresh(!refresh)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1100);
             }).catch(e => {})
         }
     }
