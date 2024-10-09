@@ -31,6 +31,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import apiCategory from "../../api/category";
 import apiTraining from "../../api/training";
 import apiTrainingClass from "../../api/training-class";
+import DownloadIcon from "@mui/icons-material/Download";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import apiDocument from "../../api/document";
 
 export default function CreateUpdateLink(props) {
     const dispatch = useDispatch();
@@ -84,6 +87,18 @@ export default function CreateUpdateLink(props) {
 
     }, [location, idUpdate])
 //=====================================================================================================
+    const handleDownloadFile = (id,type,name) => {
+        downloadFileApi(id, type)
+            .then(response => {
+                const blob=new Blob([response], {type:"application/pdf"});
+                const link = document.createElement('a');
+                link.href=window.URL.createObjectURL(blob);
+                link.download=name;
+                link.click();
+            }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
     const checkFileLocaleAlready = (name) => {
         let index = listFileLocal.findIndex(e => e.name === name)
         let index2 = listFileServer.findIndex(e => e.file_name === name)
@@ -193,6 +208,9 @@ export default function CreateUpdateLink(props) {
 //=====================================================================================================
     const createLinkApi = (data) => {
         return apiLink.createLink(data);
+    }
+    const downloadFileApi = (id, type) => {
+        return apiDocument.downloadFile(id, type);
     }
     const getTrainingApi = () => {
         return apiTraining.getAllTraining();
@@ -412,12 +430,12 @@ export default function CreateUpdateLink(props) {
                                                         <>
                                                             <div className={'item-file'}>
                                                                 <div className={'name-file '}>{e.name}</div>
-                                                                <div className={'delete-file'}><DeleteOutlineIcon
-                                                                    style={{cursor: "pointer"}}
+                                                                <div className={'delete-file'}><DeleteForeverIcon
+                                                                    style={{cursor: "pointer",color: "#ff5353", width: "26px",height: "26px"}}
                                                                     color={"error"}
                                                                     onClick={() => {
                                                                         deleteFileLocal(e.name)
-                                                                    }}></DeleteOutlineIcon></div>
+                                                                    }}></DeleteForeverIcon></div>
                                                             </div>
                                                             <Divider light/>
                                                         </>
@@ -429,12 +447,18 @@ export default function CreateUpdateLink(props) {
                                                         <>
                                                             <div className={'item-file'}>
                                                                 <div className={'name-file '}>{e.name}</div>
-                                                                <div className={'delete-file'}><DeleteOutlineIcon
-                                                                    style={{cursor: "pointer"}}
-                                                                    color={"error"}
-                                                                    onClick={() => {
-                                                                        deleteFileServer(e.id, e.name)
-                                                                    }}></DeleteOutlineIcon></div>
+                                                                <div className={'flexGroup2'}>
+                                                                    <DownloadIcon
+                                                                        style={{color: "#000",width: "26px",height: "26px"}}
+                                                                        onClick={() => handleDownloadFile(idUpdate, 'trainingDocument',e.name)}></DownloadIcon>
+                                                                    <div className={'ml5'}><DeleteForeverIcon
+                                                                        style={{cursor: "pointer",color: "#ff5353", width: "26px",height: "26px"}}
+                                                                        color={"error"}
+                                                                        onClick={() => {
+                                                                            deleteFileServer(e.id, e.name)
+                                                                        }}></DeleteForeverIcon></div>
+                                                                </div>
+
                                                             </div>
                                                             <Divider light/>
                                                         </>
