@@ -20,8 +20,8 @@ class ApiParticipantUnit{
     deleteParticipantUnit = (id) => {
         return axiosClient.post(API_MAP.DELETE_PARTICIPANT_UNIT+`?id=${id}`);
     }
-    updateParticipantUnit = (data, id) => {
-        return axiosClient.post(API_MAP.UPDATE_PARTICIPANT_UNIT+`?id=${id}`, data);
+    updateParticipantUnit = (data) => {
+        return axiosClient.post(API_MAP.UPDATE_PARTICIPANT_UNIT, data);
     }
 
 }

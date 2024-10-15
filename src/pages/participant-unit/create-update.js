@@ -152,7 +152,7 @@ export default function CreateUpdateParticipantUnit(props) {
                 toast.error('Thêm đơn vị tham gia không thành công', Utils.options);
             })
         } else {
-            if (isUpdate && idUpdate) {
+            if (isUpdate && location.get('id')) {
                 formData.append("id", location.get('id'));
                 updateParticipantUnitApi(formData).then(r => {
                     toast.success('Cập nhật đơn vị tham gia thành công', Utils.options);

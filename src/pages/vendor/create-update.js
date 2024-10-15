@@ -160,7 +160,7 @@ export default function CreateUpdateVendor(props) {
                 toast.error('Thêm nhà cung cấp không thành công', Utils.options);
             })
         } else {
-            if (isUpdate && idUpdate) {
+            if (isUpdate && location.get('id')) {
                 formData.append("id", location.get('id'));
                 updateVendorApi(formData).then(r => {
                     toast.success('Cập nhật nhà cung cấp thành công', Utils.options);
@@ -182,8 +182,8 @@ export default function CreateUpdateVendor(props) {
     const createVendorApi = (data) => {
         return apiVendor.createVendor(data);
     }
-    const updateVendorApi = (data, idUpdate) => {
-        return apiVendor.updateVendor(data, idUpdate);
+    const updateVendorApi = (data) => {
+        return apiVendor.updateVendor(data);
     }
     const getDetailApi = (idUpdate) => {
         return apiVendor.getDetailVendor(idUpdate);

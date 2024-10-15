@@ -20,8 +20,8 @@ class ApiVendor{
     deleteVendor = (id) => {
         return axiosClient.post(API_MAP.DELETE_VENDOR+`?id=${id}`);
     }
-    updateVendor = (data, id) => {
-        return axiosClient.post(API_MAP.UPDATE_VENDOR+`?id=${id}`, data);
+    updateVendor = (data) => {
+        return axiosClient.post(API_MAP.UPDATE_VENDOR, data);
     }
 
 }

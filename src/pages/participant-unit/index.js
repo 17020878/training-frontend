@@ -163,7 +163,6 @@ export default function ManageParticipantUnit() {
                                             <TableCell style={{minWidth: 200}}>Đầu mối phối hợp</TableCell>
                                             <TableCell style={{minWidth: 200}}>Số điện thoại</TableCell>
                                             <TableCell style={{minWidth: 200}}>Email</TableCell>
-                                            <TableCell style={{minWidth: 200}}>Đánh giá chung</TableCell>
                                             <TableCell style={{minWidth: 250}}>Ghi chú</TableCell>
                                             <TableCell style={{minWidth: 50}} align="center">Thao tác</TableCell>
                                         </TableRow>
