@@ -3,10 +3,7 @@ import {
     Button,
     CircularProgress,
     Divider,
-    FormControl,
     InputAdornment,
-    MenuItem,
-    Select,
     Table,
     TableBody,
     TableCell,
@@ -21,16 +18,18 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import {toast} from "react-toastify";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
 import Utils, {convertArr} from "../../constants/utils";
 import apiVendor from "../../api/vendor";
 import {DeleteIcon, UpdateIcon} from "../../constants/icon-define";
+import {CREATE_CATEGORY, DELETE_CATEGORY, EDIT_CATEGORY} from "../../constants/variable";
 
 
 export default function ManageVendor() {
     const dispatch = useDispatch();
+    const currentUser = useSelector(state => state.currentUser)
     const navigate = useNavigate();
     const [openModalDel, setOpenModalDel] = useState(false)
     const [open, setOpen] = useState(false)
@@ -120,7 +119,10 @@ export default function ManageVendor() {
             <div className={'main-content-body'}>
                 <div className={'main-content-body-title flexGroup2'}>
                     <h4>Tìm kiếm</h4>
-                    <Button onClick={addVendorBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button>
+                    {
+                        currentUser.roles.includes(CREATE_CATEGORY) ?
+                            <Button onClick={addVendorBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button> : ""
+                    }
                 </div>
                 <Divider light/>
                 <div className={'main-content-body-search'}>
@@ -195,14 +197,18 @@ export default function ManageVendor() {
                                                     <TableCell rowSpan={1}>{item.notes}</TableCell>
                                                     <TableCell rowSpan={1} align="center">
                                                         <div className='icon-action'>
-                                                            <Tooltip title="Cập nhật"
-                                                                     onClick={() => updateVendorBtn(item.id)}>
-                                                                <div><UpdateIcon/></div>
-                                                            </Tooltip>
-                                                            <Tooltip className={'deleteButton'} title="Xóa"
-                                                                     onClick={() => deleteVendorBtn(item.id)}>
-                                                                <div><DeleteIcon/></div>
-                                                            </Tooltip>
+                                                            {currentUser.roles.includes(EDIT_CATEGORY)
+                                                                ? <Tooltip title="Cập nhật"
+                                                                           onClick={() => updateVendorBtn(item.id)}>
+                                                                    <div><UpdateIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
+                                                            {currentUser.roles.includes(DELETE_CATEGORY)
+                                                                ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                           onClick={() => deleteVendorBtn(item.id)}>
+                                                                    <div><DeleteIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>

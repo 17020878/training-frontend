@@ -3,10 +3,8 @@ import {
     Button,
     CircularProgress,
     Divider,
-    FormControl,
-    InputAdornment, Menu,
-    MenuItem,
-    Select,
+    InputAdornment,
+    Menu,
     Table,
     TableBody,
     TableCell,
@@ -21,7 +19,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import {toast} from "react-toastify";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
 import Utils, {convertArr, formatVND, getDateTimeFromTimestamp, getNameToId} from "../../constants/utils";
@@ -31,10 +29,12 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
 import apiTableConfig from "../../api/tableConfig";
 import {tableName} from "../../constants/json_define";
+import {CREATE_LINK, DELETE_LINK, EDIT_LINK} from "../../constants/variable";
 
 
 export default function ManageLink() {
     const dispatch = useDispatch();
+    const currentUser = useSelector(state => state.currentUser)
     const navigate = useNavigate();
     const [openModalDel, setOpenModalDel] = useState(false)
     const [open, setOpen] = useState(false)
@@ -143,7 +143,10 @@ export default function ManageLink() {
             <div className={'main-content-body'}>
                 <div className={'main-content-body-title flexGroup2'}>
                     <h4>Tìm kiếm</h4>
-                    <Button onClick={addLinkBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button>
+                    {
+                        currentUser.roles.includes(CREATE_LINK) ?
+                            <Button onClick={addLinkBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button> : ""
+                    }
                 </div>
                 <Divider light/>
                 <div className={'main-content-body-search'}>
@@ -295,14 +298,18 @@ export default function ManageLink() {
                                                     {/*<TableCell rowSpan={1}>{item.notes}</TableCell>*/}
                                                     <TableCell className={'action-header filter-table'} rowSpan={1} align="center">
                                                         <div className='icon-action'>
-                                                            <Tooltip title="Cập nhật"
-                                                                     onClick={() => updateLinkBtn(item.id)}>
-                                                                <div><UpdateIcon/></div>
-                                                            </Tooltip>
-                                                            <Tooltip className={'deleteButton'} title="Xóa"
-                                                                     onClick={() => deleteLinkBtn(item.id)}>
-                                                                <div><DeleteIcon/></div>
-                                                            </Tooltip>
+                                                            {currentUser.roles.includes(EDIT_LINK)
+                                                                ? <Tooltip title="Cập nhật"
+                                                                           onClick={() => updateLinkBtn(item.id)}>
+                                                                    <div><UpdateIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
+                                                            {currentUser.roles.includes(DELETE_LINK)
+                                                                ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                           onClick={() => deleteLinkBtn(item.id)}>
+                                                                    <div><DeleteIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>

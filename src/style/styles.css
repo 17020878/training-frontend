@@ -1149,6 +1149,9 @@ hr {
   padding: 0 4px;
   font-size: 20px;
 }
+.assign-icon path{
+  fill: #f60 !important;
+}
 .update-icon{
   color: #4caf50 !important;
 }

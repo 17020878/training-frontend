@@ -21,16 +21,24 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import {toast} from "react-toastify";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
 import Utils, {convertArr} from "../../constants/utils";
 import apiParticipantUnit from "../../api/participant-unit";
 import {DeleteIcon, UpdateIcon} from "../../constants/icon-define";
+import {
+    CREATE_CATEGORY,
+    CREATE_TRAINING_CLASS,
+    DELETE_TRAINING_SESSION,
+    EDIT_TRAINING_SESSION
+} from "../../constants/variable";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 
 export default function ManageParticipantUnit() {
     const dispatch = useDispatch();
+    const currentUser = useSelector(state => state.currentUser)
     const navigate = useNavigate();
     const [openModalDel, setOpenModalDel] = useState(false)
     const [open, setOpen] = useState(false)
@@ -119,7 +127,10 @@ export default function ManageParticipantUnit() {
             <div className={'main-content-body'}>
                 <div className={'main-content-body-title flexGroup2'}>
                     <h4>Tìm kiếm</h4>
-                    <Button onClick={addParticipantUnitBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button>
+                    {
+                        currentUser.roles.includes(CREATE_CATEGORY) ?
+                            <Button onClick={addParticipantUnitBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button> : ""
+                    }
                 </div>
                 <Divider light/>
                 <div className={'main-content-body-search'}>
@@ -188,14 +199,18 @@ export default function ManageParticipantUnit() {
                                                     <TableCell rowSpan={1}>{item.notes}</TableCell>
                                                     <TableCell rowSpan={1} align="center">
                                                         <div className='icon-action'>
-                                                            <Tooltip title="Cập nhật"
-                                                                     onClick={() => updateParticipantUnitBtn(item.id)}>
-                                                                <div><UpdateIcon/></div>
-                                                            </Tooltip>
-                                                            <Tooltip className={'deleteButton'} title="Xóa"
-                                                                     onClick={() => deleteParticipantUnitBtn(item.id)}>
-                                                                <div><DeleteIcon/></div>
-                                                            </Tooltip>
+                                                            {currentUser.roles.includes(EDIT_TRAINING_SESSION)
+                                                                ? <Tooltip title="Cập nhật"
+                                                                           onClick={() => updateParticipantUnitBtn(item.id)}>
+                                                                    <div><UpdateIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
+                                                            {currentUser.roles.includes(DELETE_TRAINING_SESSION)
+                                                                ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                           onClick={() => deleteParticipantUnitBtn(item.id)}>
+                                                                    <div><DeleteIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>

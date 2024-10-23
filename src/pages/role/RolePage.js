@@ -20,7 +20,7 @@ import apiRole from "../../api/role";
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import {useSelector} from "react-redux";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
-import {DeleteIcon, UpdateIcon} from "../../constants/icon-define";
+import {AssignIcon, DeleteIcon, UpdateIcon} from "../../constants/icon-define";
 export default function RolePage() {
     const currentUser = useSelector(state => state.currentUser)
     const navigate = useNavigate();
@@ -180,8 +180,9 @@ export default function RolePage() {
                                                             <div style={{display:'flex',justifyContent:'center'}} className={"icon-action"}>
                                                                 {
                                                                     currentUser.roles.includes('edit_role')?
-                                                                        <Tooltip title={"Phân quyền"}>
-                                                                            <AssignmentTurnedInIcon style={{color:"#1e1e44",marginRight:"10px"}} onClick={()=>{navigate(`/role/permission?id=${item.id}`)}}></AssignmentTurnedInIcon>
+                                                                        <Tooltip title={"Phân quyền"} onClick={()=>{navigate(`/role/permission?id=${item.id}`)}}>
+                                                                            <div><AssignIcon /></div>
+
                                                                         </Tooltip>:""
                                                                 }
                                                                 {

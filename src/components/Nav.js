@@ -8,23 +8,37 @@ import {isMobile} from 'react-device-detect';
 import {updateShowMenu} from "../store/user/userSlice";
 import GroupsIcon from '@mui/icons-material/Groups';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import GridViewIcon from '@mui/icons-material/GridView';
 import ComputerIcon from '@mui/icons-material/Computer';
 import HistoryIcon from '@mui/icons-material/History';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import ClassIcon from '@mui/icons-material/Class';
 import {getTitleFromCodeCategory} from "../constants/utils";
 import {
-    DashBoardIcon, FormTrainingIcon, LecturerIcon, LecturerObjectIcon,
-    LinkIcon, OrganizationLocationIcon, ParticipantUnitIcon,
-    PlanIcon, StudentIcon, StudentObjectIcon,
-    Training,
-    TrainingClassIcon, TrainingDocumentIcon,
+    DashBoardIcon,
+    FormTrainingIcon,
+    LecturerIcon,
+    LecturerObjectIcon,
+    LinkIcon,
+    OrganizationLocationIcon,
+    ParticipantUnitIcon,
+    PlanIcon,
+    StudentIcon,
+    StudentObjectIcon,
+    TrainingClassIcon,
+    TrainingDocumentIcon,
     TrainingIcon,
-    TrainingSessionIcon, TrainingTypeIcon, VendorIcon
+    TrainingSessionIcon,
+    TrainingTypeIcon,
+    VendorIcon
 } from "../constants/icon-define";
+import {
+    VIEW_CATEGORY,
+    VIEW_LINK,
+    VIEW_PLAN, VIEW_TRAINING,
+    VIEW_TRAINING_CLASS,
+    VIEW_TRAINING_DOCUMENT,
+    VIEW_TRAINING_SESSION
+} from "../constants/variable";
 
 export default function Nav() {
     const {pathname} = useLocation();
@@ -67,7 +81,7 @@ export default function Nav() {
             <div className={'navbarBox__main'}>
                 <div className={'logo'}>
                     <a href={'#'}><img style={{width: '100%'}}
-                                                src={require('../assets/img/logo-white.png')}/></a>
+                                       src={require('../assets/img/logo-white.png')}/></a>
                     <button onClick={touchMenu}>
                         <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
                              class="svg1">
@@ -94,7 +108,7 @@ export default function Nav() {
                                 </NavLink> : ''
                         }
                         {
-                            currentUser.roles.includes('view_group') ?
+                            currentUser.roles.includes(VIEW_PLAN) ?
                                 <NavLink exact className={'nav-link menu-parent'} isActive={true} to={'plan'}
                                          onClick={isMobile ? touchMenu : ''}>
                                     <li>
@@ -107,7 +121,7 @@ export default function Nav() {
                                 </NavLink> : ''
                         }
                         {
-                            currentUser.roles.includes('view_group') ?
+                            currentUser.roles.includes(VIEW_TRAINING) ?
                                 <NavLink className={'nav-link menu-parent'} isActive={true} to={'training'}
                                          onClick={isMobile ? touchMenu : ''}>
                                     <li>
@@ -120,7 +134,7 @@ export default function Nav() {
                                 </NavLink> : ''
                         }
                         {
-                            currentUser.roles.includes('view_group') ?
+                            currentUser.roles.includes(VIEW_TRAINING_CLASS) ?
                                 <NavLink className={'nav-link menu-parent'} isActive={true} to={'training-class'}
                                          onClick={isMobile ? touchMenu : ''}>
                                     <li>
@@ -133,12 +147,13 @@ export default function Nav() {
                                 </NavLink> : ''
                         }
                         {
-                            currentUser.roles.includes('view_group') ?
+                            currentUser.roles.includes(VIEW_TRAINING_SESSION) ?
                                 <NavLink className={'nav-link menu-parent'} isActive={true} to={'training-session'}
                                          onClick={isMobile ? touchMenu : ''}>
                                     <li>
                                         <div className={'nav-item'}>
-                                            <div className={'nav-item-name '}><TrainingSessionIcon></TrainingSessionIcon>
+                                            <div className={'nav-item-name '}>
+                                                <TrainingSessionIcon></TrainingSessionIcon>
                                                 Phiên đào tạo
                                             </div>
                                         </div>
@@ -146,7 +161,7 @@ export default function Nav() {
                                 </NavLink> : ''
                         }
                         {
-                            currentUser.roles.includes('view_group') ?
+                            currentUser.roles.includes(VIEW_LINK) ?
                                 <NavLink className={'nav-link menu-parent'} isActive={true} to={'link'}
                                          onClick={isMobile ? touchMenu : ''}>
                                     <li>
@@ -159,19 +174,20 @@ export default function Nav() {
                                 </NavLink> : ''
                         }
                         {
-                            currentUser.roles.includes('view_group') ?
+                            currentUser.roles.includes(VIEW_TRAINING_DOCUMENT) ?
                                 <NavLink className={'nav-link menu-parent'} isActive={true} to={'training-document'}
                                          onClick={isMobile ? touchMenu : ''}>
                                     <li>
                                         <div className={'nav-item'}>
-                                            <div className={'nav-item-name '}><TrainingDocumentIcon></TrainingDocumentIcon>
+                                            <div className={'nav-item-name '}>
+                                                <TrainingDocumentIcon></TrainingDocumentIcon>
                                                 Tài liệu đào tạo
                                             </div>
                                         </div>
                                     </li>
                                 </NavLink> : ''
                         }
-                        {currentUser.roles.includes('view_category') ?
+                        {currentUser.roles.includes(VIEW_CATEGORY) ?
                             <NavLink className={'nav-link nolight menu-parent'}>
                                 <li onClick={handleClickSale}>
                                     <div className={'nav-item'} style={{width: '100%', color: 'white'}}>
@@ -184,125 +200,127 @@ export default function Nav() {
                                 </li>
                             </NavLink> : ''
                         }
-                        <Collapse in={openSale} timeout="auto" unmountOnExit>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'object-student'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <StudentObjectIcon></StudentObjectIcon>
-                                                {getTitleFromCodeCategory("StudentObject")}
+                        {currentUser.roles.includes(VIEW_CATEGORY)
+                            ? <Collapse in={openSale} timeout="auto" unmountOnExit>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'object-student'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <StudentObjectIcon></StudentObjectIcon>
+                                                    {getTitleFromCodeCategory("StudentObject")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'object-lecturer'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <LecturerObjectIcon></LecturerObjectIcon>
-                                                {getTitleFromCodeCategory("LecturerObject")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'object-lecturer'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <LecturerObjectIcon></LecturerObjectIcon>
+                                                    {getTitleFromCodeCategory("LecturerObject")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'lecturer'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <LecturerIcon></LecturerIcon>
-                                                {getTitleFromCodeCategory("Lecturer")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'lecturer'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <LecturerIcon></LecturerIcon>
+                                                    {getTitleFromCodeCategory("Lecturer")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'student'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <StudentIcon></StudentIcon>
-                                                {getTitleFromCodeCategory("Student")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'student'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <StudentIcon></StudentIcon>
+                                                    {getTitleFromCodeCategory("Student")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'organization-location'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <OrganizationLocationIcon></OrganizationLocationIcon>
-                                                {getTitleFromCodeCategory("OrganizationLocation")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'organization-location'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <OrganizationLocationIcon></OrganizationLocationIcon>
+                                                    {getTitleFromCodeCategory("OrganizationLocation")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'training-type'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <TrainingTypeIcon></TrainingTypeIcon>
-                                                {getTitleFromCodeCategory("TrainingType")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'training-type'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <TrainingTypeIcon></TrainingTypeIcon>
+                                                    {getTitleFromCodeCategory("TrainingType")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'form-training'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <FormTrainingIcon></FormTrainingIcon>
-                                                {getTitleFromCodeCategory("FormTraining")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'form-training'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <FormTrainingIcon></FormTrainingIcon>
+                                                    {getTitleFromCodeCategory("FormTraining")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'participant-unit'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <ParticipantUnitIcon></ParticipantUnitIcon>
-                                                {getTitleFromCodeCategory("ParticipantUnit")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'participant-unit'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <ParticipantUnitIcon></ParticipantUnitIcon>
+                                                    {getTitleFromCodeCategory("ParticipantUnit")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                            <ul style={{padding: '0px 20px'}}>
-                                <NavLink className={'nav-link'} to={'vendor'}
-                                         onClick={isMobile ? touchMenu : ''}>
-                                    <li>
-                                        <div className={'nav-item li-child'}>
-                                            <div className={'nav-item-name'}>
-                                                <VendorIcon></VendorIcon>
-                                                {getTitleFromCodeCategory("Vendor")}
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                                <ul style={{padding: '0px 20px'}}>
+                                    <NavLink className={'nav-link'} to={'vendor'}
+                                             onClick={isMobile ? touchMenu : ''}>
+                                        <li>
+                                            <div className={'nav-item li-child'}>
+                                                <div className={'nav-item-name'}>
+                                                    <VendorIcon></VendorIcon>
+                                                    {getTitleFromCodeCategory("Vendor")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                </NavLink>
-                            </ul>
-                        </Collapse>
+                                        </li>
+                                    </NavLink>
+                                </ul>
+                            </Collapse> : ""
+                        }
                         {currentUser.roles.includes('view_user') || currentUser.roles.includes('view_role') || currentUser.roles.includes('view_organization') || currentUser.roles.includes('view_organization') || currentUser.roles.includes('view_login') ?
                             <NavLink className={'nav-link nolight menu-parent'}>
                                 <li onClick={handleClickIT}>

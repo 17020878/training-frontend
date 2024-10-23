@@ -39,6 +39,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
 import apiTableConfig from "../../api/tableConfig";
 import AddIcon from "@mui/icons-material/Add";
+import {CREATE_PLAN, DELETE_PLAN, EDIT_PLAN} from "../../constants/variable";
 
 
 export default function ManagePlan() {
@@ -215,7 +216,8 @@ export default function ManagePlan() {
             <div className={'main-content-body'}>
                 <div className={'main-content-body-title flexGroup2'}>
                     <h4>Tìm kiếm</h4>
-                    <Button onClick={addPlanBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button>
+                    {currentUser.roles.includes(CREATE_PLAN)
+                        ? <Button onClick={addPlanBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button> : ''}
                 </div>
                 <Divider light/>
                 <div className={'main-content-body-search'}>
@@ -380,14 +382,18 @@ export default function ManagePlan() {
                                                     <TableCell className={'action-header filter-table'}
                                                                rowSpan={1} align="center">
                                                         <div className='icon-action'>
-                                                            <Tooltip title="Cập nhật"
-                                                                     onClick={() => updatePlanBtn(item.id)}>
-                                                                <div><UpdateIcon/></div>
-                                                            </Tooltip>
-                                                            <Tooltip className={'deleteButton'} title="Xóa"
-                                                                     onClick={() => deletePlanBtn(item.id)}>
-                                                                <div><DeleteIcon/></div>
-                                                            </Tooltip>
+                                                            {currentUser.roles.includes(EDIT_PLAN)
+                                                                ? <Tooltip title="Cập nhật"
+                                                                           onClick={() => updatePlanBtn(item.id)}>
+                                                                    <div><UpdateIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
+                                                            {currentUser.roles.includes(DELETE_PLAN)
+                                                                ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                           onClick={() => deletePlanBtn(item.id)}>
+                                                                    <div><DeleteIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>

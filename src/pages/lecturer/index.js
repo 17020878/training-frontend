@@ -21,7 +21,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import {toast} from "react-toastify";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import ModalConfirmDel from "../../components/ModalConfirmDelete";
 import Utils, {convertArr, formatVND, getDateTimeFromTimestamp, getNameToId} from "../../constants/utils";
@@ -31,10 +31,19 @@ import apiTableConfig from "../../api/tableConfig";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
 import {tableName} from "../../constants/json_define";
+import {
+    CREATE_CATEGORY,
+    CREATE_TRAINING_CLASS,
+    DELETE_CATEGORY,
+    EDIT_CATEGORY,
+    EDIT_TRAINING_SESSION
+} from "../../constants/variable";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 
 export default function ManageLecturer() {
     const dispatch = useDispatch();
+    const currentUser = useSelector(state => state.currentUser)
     const navigate = useNavigate();
     const [openModalDel, setOpenModalDel] = useState(false)
     const [open, setOpen] = useState(false)
@@ -138,7 +147,10 @@ export default function ManageLecturer() {
             <div className={'main-content-body'}>
                 <div className={'main-content-body-title flexGroup2'}>
                     <h4>Tìm kiếm</h4>
-                    <Button onClick={addLecturerBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button>
+                    {
+                        currentUser.roles.includes(CREATE_CATEGORY) ?
+                            <Button onClick={addLecturerBtn} variant="outlined" startIcon={<AddIcon/>}>Thêm</Button> : ""
+                    }
                 </div>
                 <Divider light/>
                 <div className={'main-content-body-search'}>
@@ -290,14 +302,18 @@ export default function ManageLecturer() {
                                                     {/*<TableCell rowSpan={1}>{item.experience}</TableCell>*/}
                                                     <TableCell className={'action-header filter-table'} rowSpan={1} align="center">
                                                         <div className='icon-action'>
-                                                            <Tooltip title="Cập nhật"
-                                                                     onClick={() => updateLecturerBtn(item.id)}>
-                                                                <div><UpdateIcon/></div>
-                                                            </Tooltip>
-                                                            <Tooltip className={'deleteButton'} title="Xóa"
-                                                                     onClick={() => deleteLecturerBtn(item.id)}>
-                                                                <div><DeleteIcon/></div>
-                                                            </Tooltip>
+                                                            {currentUser.roles.includes(EDIT_CATEGORY)
+                                                                ? <Tooltip title="Cập nhật"
+                                                                           onClick={() => updateLecturerBtn(item.id)}>
+                                                                    <div><UpdateIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
+                                                            {currentUser.roles.includes(DELETE_CATEGORY)
+                                                                ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                           onClick={() => deleteLecturerBtn(item.id)}>
+                                                                    <div><DeleteIcon/></div>
+                                                                </Tooltip>
+                                                                : ''}
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>

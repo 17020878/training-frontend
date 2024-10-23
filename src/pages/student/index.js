@@ -41,6 +41,7 @@ import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import apiTableConfig from "../../api/tableConfig";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
+import {CREATE_CATEGORY, DELETE_TRAINING_SESSION, EDIT_TRAINING_SESSION} from "../../constants/variable";
 
 
 export default function ManageStudent() {
@@ -225,7 +226,7 @@ export default function ManageStudent() {
                             </div>
                             <div>
                                 {
-                                    currentUser.roles.includes('create_advance') ?
+                                    currentUser.roles.includes(CREATE_CATEGORY) ?
                                         <Button onClick={addStudentBtn} variant="outlined" startIcon={<ControlPointIcon/>}>
                                             Thêm học viên
                                         </Button> : ""
@@ -395,14 +396,18 @@ export default function ManageStudent() {
                                                                 {/*<TableCell rowSpan={1}>{item.notes}</TableCell>*/}
                                                                 <TableCell className={'action-header filter-table'} rowSpan={1} align="center">
                                                                     <div className='icon-action'>
-                                                                        <Tooltip title="Cập nhật"
-                                                                                 onClick={() => updateStudentBtn(item.id)}>
-                                                                            <div><UpdateIcon/></div>
-                                                                        </Tooltip>
-                                                                        <Tooltip className={'deleteButton'} title="Xóa"
-                                                                                 onClick={() => deleteStudentBtn(item.id)}>
-                                                                            <div><DeleteIcon/></div>
-                                                                        </Tooltip>
+                                                                        {currentUser.roles.includes(EDIT_TRAINING_SESSION)
+                                                                            ? <Tooltip title="Cập nhật"
+                                                                                       onClick={() => updateStudentBtn(item.id)}>
+                                                                                <div><UpdateIcon/></div>
+                                                                            </Tooltip>
+                                                                            : ''}
+                                                                        {currentUser.roles.includes(DELETE_TRAINING_SESSION)
+                                                                            ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                                       onClick={() => deleteStudentBtn(item.id)}>
+                                                                                <div><DeleteIcon/></div>
+                                                                            </Tooltip>
+                                                                            : ''}
                                                                     </div>
                                                                 </TableCell>
                                                             </TableRow>

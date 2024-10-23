@@ -43,6 +43,7 @@ import {updateAdvanceSearch} from "../../store/user/userSlice";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
 import apiTableConfig from "../../api/tableConfig";
+import {CREATE_TRAINING, DELETE_TRAINING, EDIT_PLAN, EDIT_TRAINING} from "../../constants/variable";
 
 
 export default function ManageTraining() {
@@ -225,14 +226,12 @@ export default function ManageTraining() {
                             </div>
                             <div>
                                 {
-                                    currentUser.roles.includes('create_advance') ?
+                                    currentUser.roles.includes(CREATE_TRAINING) ?
                                         <Button onClick={addTrainingBtn} variant="outlined" startIcon={<ControlPointIcon/>}>
                                             Thêm khóa đào tạo
                                         </Button> : ""
                                 }
-
                             </div>
-
                         </div>
                         <div className={'children-organization'}>
                             <div className={'main-content-body-search'}>
@@ -456,14 +455,18 @@ export default function ManageTraining() {
                                                                 {/*<TableCell rowSpan={1}>{item.notes}</TableCell>*/}
                                                                 <TableCell className={'action-header filter-table'} rowSpan={1} align="center">
                                                                     <div className='icon-action'>
-                                                                        <Tooltip title="Cập nhật"
-                                                                                 onClick={() => updateTrainingBtn(item.id)}>
-                                                                            <div><UpdateIcon/></div>
-                                                                        </Tooltip>
-                                                                        <Tooltip className={'deleteButton'} title="Xóa"
-                                                                                 onClick={() => deleteTrainingBtn(item.id)}>
-                                                                            <div><DeleteIcon/></div>
-                                                                        </Tooltip>
+                                                                        {currentUser.roles.includes(EDIT_TRAINING)
+                                                                            ? <Tooltip title="Cập nhật"
+                                                                                       onClick={() => updateTrainingBtn(item.id)}>
+                                                                                <div><UpdateIcon/></div>
+                                                                            </Tooltip>
+                                                                            : ''}
+                                                                        {currentUser.roles.includes(DELETE_TRAINING)
+                                                                            ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                                       onClick={() => deleteTrainingBtn(item.id)}>
+                                                                                <div><DeleteIcon/></div>
+                                                                            </Tooltip>
+                                                                            : ''}
                                                                     </div>
                                                                 </TableCell>
                                                             </TableRow>

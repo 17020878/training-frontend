@@ -43,6 +43,12 @@ import apiOrganization from "../../api/organization";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SettingColumnTable from "../../components/SettingColumnTable";
 import apiTableConfig from "../../api/tableConfig";
+import {
+    CREATE_TRAINING_CLASS,
+    DELETE_TRAINING_CLASS,
+    EDIT_TRAINING,
+    EDIT_TRAINING_CLASS
+} from "../../constants/variable";
 
 
 export default function ManageTrainingClass() {
@@ -221,15 +227,13 @@ export default function ManageTrainingClass() {
                             </div>
                             <div>
                                 {
-                                    currentUser.roles.includes('create_advance') ?
+                                    currentUser.roles.includes(CREATE_TRAINING_CLASS) ?
                                         <Button onClick={addTrainingClassBtn} variant="outlined"
                                                 startIcon={<ControlPointIcon/>}>
                                             Thêm lớp đào tạo
                                         </Button> : ""
                                 }
-
                             </div>
-
                         </div>
                         <div className={'children-organization'}>
                             <div className={'main-content-body-search'}>
@@ -399,14 +403,18 @@ export default function ManageTrainingClass() {
                                                                 {/*<TableCell rowSpan={1}>{item.notes}</TableCell>*/}
                                                                 <TableCell className={'action-header filter-table'} rowSpan={1} align="center">
                                                                     <div className='icon-action'>
-                                                                        <Tooltip title="Cập nhật"
-                                                                                 onClick={() => updateTrainingClassBtn(item.id)}>
-                                                                            <div><UpdateIcon/></div>
-                                                                        </Tooltip>
-                                                                        <Tooltip className={'deleteButton'} title="Xóa"
-                                                                                 onClick={() => deleteTrainingClassBtn(item.id)}>
-                                                                            <div><DeleteIcon/></div>
-                                                                        </Tooltip>
+                                                                        {currentUser.roles.includes(EDIT_TRAINING_CLASS)
+                                                                            ? <Tooltip title="Cập nhật"
+                                                                                       onClick={() => updateTrainingClassBtn(item.id)}>
+                                                                                <div><UpdateIcon/></div>
+                                                                            </Tooltip>
+                                                                            : ''}
+                                                                        {currentUser.roles.includes(DELETE_TRAINING_CLASS)
+                                                                            ? <Tooltip className={'deleteButton'} title="Xóa"
+                                                                                       onClick={() => deleteTrainingClassBtn(item.id)}>
+                                                                                <div><DeleteIcon/></div>
+                                                                            </Tooltip>
+                                                                            : ''}
                                                                     </div>
                                                                 </TableCell>
                                                             </TableRow>
